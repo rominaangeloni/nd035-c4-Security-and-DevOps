@@ -6,6 +6,7 @@ services:
       - "--http-port=9090"
       - "--log-level=INFO,org.keycloak.events:DEBUG"
       - "--import-realm"
+      - "--users=realm_file"
     ports:
       - "9090:9090"
     environment:
