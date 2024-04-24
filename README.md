@@ -3,7 +3,7 @@ Identity and access manager (Keycloak)
 
 1- Run docker compose 
 
-2- Select `wallapop-connect` real
+2- Select `wallapop-connect` realm
 
 3- Create a user with password (complete all data and put "email verified" in false)
 
