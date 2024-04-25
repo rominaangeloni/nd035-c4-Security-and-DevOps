@@ -34,34 +34,44 @@ Notes:
 ```mermaid
 sequenceDiagram
     autonumber
-    participant U as User/Browser
+   actor Seller as Wallapop Seller<br/>(browser)
     participant PH as Portal Hero
-    participant K as Keycloak
-    participant AG as API Gateway
-    participant C as Catalog
+   participant IdP as Keycloak
+   Seller ->> PH: Log into Portal Hero
+   Seller ->> PH: Connect with Wallapop
+   rect rgb(100,100,100)
+      Note over PH: Obtain Authorization code
+      PH -->> Seller: Authorization request redirect
+      Seller ->> IdP: Authorization request
+      IdP -->> Seller: Shows login page
+      Seller ->> IdP: Authenticates (successful login)
+      IdP -->> Seller: Authorization code (redirection URI)
+      Seller ->> PH: Redirection URI request
+   end
+   rect rgb(100,100,100)
+      Note over PH, IdP: Exchange authorization code for token
+      PH ->> IdP: Send authorization code
+      IdP ->> PH: Access and refresh tokens
+   end
+   PH ->> Seller: Informs connection completed
+   create participant ApiGW as API Gateway
+   PH ->> ApiGW: Wallapop Connect API request (with access token)
+   ApiGW ->> ApiGW: Validates access token
+   create participant C as Catalog
+   ApiGW ->> C: Forward API request
 
-    U->>PH: Log into Portal Hero
-    U->>PH: Connect with Wallapop
-    PH-->>U: Authorization request redirect
-    U->>K: Authorization request
-    K-->>U: Response with login page
-    U->>K: Successful log in
-    K-->>U: Redirection URI
-    U->>PH: Redirect to callback URI
-    PH->>K: Request tokens
-    K-->>PH: Return tokens
-    PH-->>U: Successfully connected to Wallapop
-    PH->>PH: Upload item automatically
-    PH->>AG: Wallapop Connect API call with token
-    AG->>AG: Validate token
-    AG->>C: API call
+   box Wallapop API Connect
+      participant ApiGW
+      participant C
+   end
+
 ```
 
 Flow details:
 
-1. The user logs into Portal Hero with their usual credentials
-2. The user performs the action of connecting their PortalHero account with Wallapop
-3. Portal Hero responds with a redirect to Keycloak for the authorization request in the next step
+1. The seller logs into Portal Hero with their Portal Hero user and password
+2. The seller initiates the action for allowing PortalHero interact with Wallapop on their behalf
+3. Portal Hero redirects the seller to Keycloak authorization endpoint
    ```
    GET http://localhost:9090/realms/wallapop-connect/protocol/openid-connect/auth
    Query params:
@@ -87,12 +97,12 @@ Flow details:
    - `client_id` - the ID of the client configured in Keycloak
    - `code_challenge` - the computed code challenge
    - `code_challenge_method` - the hashing method of the code challenge
-4. The browser executes the redirection to Keycloak - note that PKCE parameters are sent as well
-5. Keycloak responds with the login page to authenticate the user
-6. The is successfully authenticated in Keycloak
-7. Keycloak responds with the redirection to Portal Hero
+4. The seller's browser redirects to Keycloak authorization endpoint
+5. Keycloak shows the seller the login page to authenticate them
+6. The seller successfully authenticates as a Wallapop user through Keycloak
+7. Keycloak redirects the seller to Portal Hero with the authorization code
    ```
-   GET /callback
+   GET /redirection-uri
    Query params:
    state: haeMd6UffZpxLDRWkNbAMW
    session_state: 9c296d6e-1353-43ab-91ec-d8df10532938
@@ -103,11 +113,10 @@ Flow details:
    - `session_state` - TODO
    - `iss` - issuer of the authorization code (in this case, Keycloak)
    - `code` - the authorization code
-8. The browser executes the redirection to Portal Hero (with code verifier as per PKCE)
-9. Portal Hero perform the token request to Keycloak
-10. Keycloak returns both access and refresh tokens
-11. Portal Hero informs the user that their account has been successfully connected to Wallapop
-12. Some time later (undefined how much later) Portal Hero automatically tiggers the action importing items to the user's Wallapop account
-13. Portal Hero calls Wallapop Connect API with the access token
-14. API Gateway ensures the token is valid
-15. On successful validation, API Gateway forwards the request to Catalog
+8. The seller's browser redirects to Portal Hero
+9. Portal Hero exchange the authorization code for the access and refresh tokens (including PKCE code verifier)
+10. Keycloak returns both access and refresh tokens to Portal Hero
+11. Portal Hero informs the seller about the connection to Wallapop
+12. Portal Hero calls Wallapop Connect API using the access token
+13. API Gateway validates the access token
+14. On successful validation, API Gateway forwards the request to Catalog
