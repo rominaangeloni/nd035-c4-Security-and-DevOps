@@ -39,7 +39,7 @@ sequenceDiagram
    participant IdP as Keycloak
    Seller ->> PH: Log into Portal Hero
    Seller ->> PH: Connect with Wallapop
-   rect rgb(100,100,100)
+   rect rgb(230, 230, 230)
       Note over PH: Obtain Authorization code
       PH -->> Seller: Authorization request redirect
       Seller ->> IdP: Authorization request
@@ -48,7 +48,7 @@ sequenceDiagram
       IdP -->> Seller: Authorization code (redirection URI)
       Seller ->> PH: Redirection URI request
    end
-   rect rgb(100,100,100)
+   rect rgb(230, 230, 230)
       Note over PH, IdP: Exchange authorization code for token
       PH ->> IdP: Send authorization code
       IdP ->> PH: Access and refresh tokens
