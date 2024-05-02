@@ -5,9 +5,11 @@ Identity and access manager (Keycloak)
 
 2- Select `wallapop-connect` realm
 
-3- Create a user with password (complete all data and put "email verified" in false)
+3- Regenerate the client secret of `portal-hero`
 
-4- Download [oauth2c](https://github.com/cloudentity/oauth2c) and run :
+4- Create a user with password (complete all data and put "email verified" in false)
+
+5- Download [oauth2c](https://github.com/cloudentity/oauth2c) and run :
 ```
 oauth2c "http://localhost:9090/realms/wallapop-connect" \
 --browser-timeout 30s  \
