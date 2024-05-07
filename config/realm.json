@@ -670,7 +670,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "dSGJlZFLlIZN2ZCIXeW0lAWuq5bnzxHI",
       "redirectUris": [
         "http://localhost:1234/lala",
         "http://localhost:9876/callback"
