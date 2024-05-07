@@ -598,7 +598,9 @@
       "publicClient": true,
       "frontchannelLogout": false,
       "protocol": "openid-connect",
-      "attributes": {},
+      "attributes": {
+        "post.logout.redirect.uris": "+"
+      },
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": 0,
@@ -636,7 +638,9 @@
       "publicClient": false,
       "frontchannelLogout": false,
       "protocol": "openid-connect",
-      "attributes": {},
+      "attributes": {
+        "post.logout.redirect.uris": "+"
+      },
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": 0,
@@ -690,9 +694,19 @@
         "backchannel.logout.session.required": "true",
         "display.on.consent.screen": "false",
         "oauth2.device.authorization.grant.enabled": "false",
-        "backchannel.logout.revoke.offline.tokens": "false"
+        "backchannel.logout.revoke.offline.tokens": "false",
+        "post.logout.redirect.uris": "+",
+        "use.refresh.tokens": "true",
+        "client.use.lightweight.access.token.enabled": "false",
+        "client_credentials.use_refresh_token": "false",
+        "acr.loa.map": "{}",
+        "require.pushed.authorization.requests": "false",
+        "tls.client.certificate.bound.access.tokens": "false",
+        "token.response.type.bearer.lower-case": "false"
       },
-      "authenticationFlowBindingOverrides": {},
+      "authenticationFlowBindingOverrides": {
+        "browser": "2dc3d27c-78e3-4b51-a9db-436568904007"
+      },
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
@@ -729,7 +743,9 @@
       "publicClient": false,
       "frontchannelLogout": false,
       "protocol": "openid-connect",
-      "attributes": {},
+      "attributes": {
+        "post.logout.redirect.uris": "+"
+      },
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": 0,
@@ -977,7 +993,8 @@
           "config": {
             "id.token.claim": "true",
             "access.token.claim": "true",
-            "introspection.token.claim": "true"
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true"
           }
         }
       ]
@@ -1063,6 +1080,7 @@
           "config": {
             "introspection.token.claim": "true",
             "multivalued": "true",
+            "userinfo.token.claim": "true",
             "user.attribute": "foo",
             "id.token.claim": "true",
             "access.token.claim": "true",
@@ -1790,6 +1808,51 @@
       ]
     },
     {
+      "id": "2dc3d27c-78e3-4b51-a9db-436568904007",
+      "alias": "browser session counter limit",
+      "description": "browser based authentication with user session counter limiter",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticatorFlow": true,
+          "requirement": "ALTERNATIVE",
+          "priority": 30,
+          "autheticatorFlow": true,
+          "flowAlias": "browser session counter limit forms",
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "id": "0155803d-873e-4ab1-8473-c5ac07c6ae79",
+      "alias": "browser session counter limit forms",
+      "description": "Username, password, otp and other auth forms.",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-username-password-form",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticatorConfig": "LimitUserSession",
+          "authenticator": "user-session-limits",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 21,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
       "id": "7bd442b7-8e65-4273-bfcb-dfac5e09d278",
       "alias": "clients",
       "description": "Base authentication for clients",
@@ -2059,6 +2122,34 @@
     }
   ],
   "authenticatorConfig": [
+    {
+      "id": "d15da117-8cbe-4606-a8d7-6dd2acfeeaa7",
+      "alias": "LimitUserSession",
+      "config": {
+        "userClientLimit": "1",
+        "behavior": "Deny new session",
+        "userRealmLimit": "0"
+      }
+    },
+    {
+      "id": "1c9113ee-cebf-48bc-8ae2-570911f22121",
+      "alias": "LimitUserSession",
+      "config": {
+        "errorMessage": "You cannot login. Please, contact your Administrator",
+        "userClientLimit": "3",
+        "behavior": "Deny new session",
+        "userRealmLimit": "0"
+      }
+    },
+    {
+      "id": "71886373-5e85-4aa6-bca3-5107b0663c4b",
+      "alias": "counterLimit",
+      "config": {
+        "userClientLimit": "1",
+        "behavior": "Deny new session",
+        "userRealmLimit": "0"
+      }
+    },
     {
       "id": "50f02c2b-4516-45b1-ae14-b62030cc32b5",
       "alias": "create unique user config",
