@@ -1,0 +1,210 @@
+Description: "Keycloak"
+
+Parameters:
+  Project:
+    Type: String
+    Default: iam
+    AllowedValues: [ iam ]
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues: [ prod ]
+  ServiceName:
+    Type: String
+    Default: iam-keycloak
+    AllowedValues: [ iam-keycloak ]
+  DockerImageUri:
+    Type: String
+    # TODO: replace default by parameter
+    Default: quay.io/keycloak/keycloak:24.0.2
+  ClusterPartition:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Description: ECS cluster partition where this service will run
+    # TODO: replace default by parameter
+    Default: /ecs/prod/iam-keycloak/partition
+  ArnCertificate:
+    Type: String
+    Default: arn:aws:acm:eu-west-1:745640521341:certificate/6086ec3f-b0df-4831-b254-f7b96bf23b93
+
+Mappings:
+  Task:
+    Memory:
+      prod: 2048
+    Cpu:
+      prod: 1024
+    DesiredCapacity:
+      prod: 1
+    MinCapacity:
+      prod: 1
+    MaxCapacity:
+      prod: 1
+  Java:
+    Memory:
+      prod: 1340m
+
+Resources:
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Ref ServiceName
+      Memory: !FindInMap [ Task, Memory, !Ref Environment ]
+      NetworkMode: awsvpc
+      TaskRoleArn: !GetAtt TaskRole.Arn
+      PlacementConstraints:
+        - Type: memberOf
+          Expression: !Sub "attribute:cluster-partition == ${ClusterPartition}"
+      ContainerDefinitions:
+        - Name: !Ref ServiceName
+          Image: !Ref DockerImageUri
+          Essential: true
+          PortMappings:
+            - ContainerPort: 8080
+          EntryPoint:
+              - sh
+              - "-c"
+              - /opt/keycloak/bin/kc.sh start
+          Environment:
+            - Name: KC_HTTP_PORT
+              Value: 8080
+            - Name: KC_HOSTNAME
+              Value: iam.wallapop.com
+            - Name: KC_PROXY_HEADERS
+              Value: xforwarded
+            - Name: KC_HTTP_ENABLED
+              Value: true
+            - Name: KC_LOG_LEVEL
+              Value: INFO,org.keycloak.events:DEBUG
+            - Name: KC_HEALTH_ENABLED
+              Value: true
+            - Name: KEYCLOAK_USER
+              Value: admin
+            - Name: KEYCLOAK_ADMIN
+              Value: admin
+            - Name: KEYCLOAK_ADMIN_PASSWORD
+              Value: admin
+            - Name: KC_DB
+              Value: dev-mem
+          Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
+
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      PermissionsBoundary: !Sub arn:aws:iam::${AWS::AccountId}:policy/boundary/wallapop-boundaries
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref Environment
+      ServiceName: !Ref ServiceName
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 100
+        MaximumPercent: 200
+      TaskDefinition: !Ref TaskDefinition
+      DesiredCount: !FindInMap [ Task, DesiredCapacity, !Ref Environment ]
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - !Ref SecurityGroup
+          Subnets:
+            - Fn::ImportValue: !Sub "${Environment}-private-subnet-a"
+            - Fn::ImportValue: !Sub "${Environment}-private-subnet-b"
+            - Fn::ImportValue: !Sub "${Environment}-private-subnet-c"
+      LoadBalancers:
+        - ContainerName: !Ref ServiceName
+          ContainerPort: 8080
+          TargetGroupArn: !Ref TargetGroup
+      PropagateTags: TASK_DEFINITION
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "${ServiceName}-security-group"
+      GroupDescription: !Ref ServiceName
+      VpcId:
+        Fn::ImportValue: !Sub "${Environment}-vpc"
+      SecurityGroupIngress:
+        - FromPort: 8080
+          IpProtocol: tcp
+          SourceSecurityGroupId:
+            Fn::ImportValue:
+              !Sub ecs-${Environment}-clusterALB-SG
+          ToPort: 8080
+          Description: 'Allow access from ALB'
+      Tags:
+        - Key: Name
+          Value: !Sub "${ServiceName}-security-group"
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Ref ServiceName
+      Scheme: internal
+      LoadBalancerAttributes:
+        - Key: deletion_protection.enabled
+          Value: "true"
+      SecurityGroups:
+        - Fn::ImportValue:
+            !Sub "ecs-${Environment}-clusterALB-SG"
+      Subnets:
+        - Fn::ImportValue:
+            !Sub "${Environment}-private-subnet-a"
+        - Fn::ImportValue:
+            !Sub "${Environment}-private-subnet-b"
+        - Fn::ImportValue:
+            !Sub "${Environment}-private-subnet-c"
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: LoadBalancer
+    Properties:
+      VpcId:
+        Fn::ImportValue:
+          !Sub "${Environment}-vpc"
+      Port: 8080
+      Protocol: HTTP
+      Matcher:
+        HttpCode: '200-299'
+      HealthCheckPort: '8080'
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: '/health'
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 10
+      TargetType: ip
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '60'
+        - Key: slow_start.duration_seconds
+          Value: '60'
+
+  ListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref ArnCertificate
+
+  DnsAlias:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId:
+        Fn::ImportValue: !Sub "${Environment}-public-hosted-zone"
+      RecordSets:
+        - Name: !Sub "${Project}.wallapop.com."
+          Type: A
+          AliasTarget:
+            HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+            DNSName: !GetAtt LoadBalancer.DNSName
