@@ -11,13 +11,12 @@ services:
       - "9090:9090"
       - "9091:9090"
     environment:
-      - KEYCLOAK_USER=admin
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_DB=mysql
+      - KC_DB=postgres
       - KC_DB_USERNAME=keycloak
       - KC_DB_PASSWORD=password
-      - KC_DB_URL=jdbc:mysql://keycloak-db:3306/keycloak
+      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak
       - KC_HOSTNAME_ADMIN_URL=http://localhost:9091
     depends_on:
       - keycloak-db
@@ -26,14 +25,14 @@ services:
       - ./config/realm.json:/opt/keycloak/data/import/realm.json
 
   keycloak-db:
-    image: mysql:8.3
+    #TODO: ensure the version is the best to simulate our production environment (https://www.keycloak.org/server/db)
+    image: postgres:15.3
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      - MYSQL_ROOT_PASSWORD=admin
-      - MYSQL_USER=keycloak
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=keycloak
     volumes:
       - keycloak-db:/var/lib/keycloak-db/data
     restart: unless-stopped
