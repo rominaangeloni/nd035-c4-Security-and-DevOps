@@ -67,20 +67,25 @@ Resources:
             - Name: KC_HTTP_PORT
               Value: 8080
             - Name: KC_HOSTNAME
+              # TODO: replace by a parameter and reuse the same for the DNS
               Value: iam.wallapop.com
             - Name: KC_PROXY_HEADERS
               Value: xforwarded
             - Name: KC_HTTP_ENABLED
               Value: true
             - Name: KC_LOG_LEVEL
+              # TODO: ensure the DEBG is not harming ur or delete it before going live
               Value: INFO,org.keycloak.events:DEBUG
             - Name: KC_HEALTH_ENABLED
               Value: true
+              # TODO: ensure this is needed
             - Name: KEYCLOAK_USER
               Value: admin
             - Name: KEYCLOAK_ADMIN
+              # TODO: replace by a secret
               Value: admin
             - Name: KEYCLOAK_ADMIN_PASSWORD
+              # TODO: replace by a secret
               Value: admin
             - Name: KC_DB
               Value: dev-mem
@@ -203,6 +208,7 @@ Resources:
       HostedZoneId:
         Fn::ImportValue: !Sub "${Environment}-public-hosted-zone"
       RecordSets:
+        # TODO: replace by a parameter and reuse the same for the Keycloak Hostname
         - Name: !Sub "${Project}.wallapop.com."
           Type: A
           AliasTarget:
