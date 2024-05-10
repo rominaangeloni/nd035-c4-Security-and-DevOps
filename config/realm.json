@@ -700,7 +700,9 @@
         "pkce.code.challenge.method": "S256",
         "token.response.type.bearer.lower-case": "false"
       },
-      "authenticationFlowBindingOverrides": {},
+      "authenticationFlowBindingOverrides": {
+        "browser": "8fe0b68b-f6bf-47e4-bce4-93f94d2962ec"
+      },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
       "defaultClientScopes": [
@@ -2070,6 +2072,51 @@
           "userSetupAllowed": false
         }
       ]
+    },
+    {
+      "id": "8fe0b68b-f6bf-47e4-bce4-93f94d2962ec",
+      "alias": "session counter limiter",
+      "description": "browser based authentication with user session counter limiter",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticatorFlow": true,
+          "requirement": "ALTERNATIVE",
+          "priority": 30,
+          "autheticatorFlow": true,
+          "flowAlias": "session counter limiter forms",
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "id": "510d075a-fbfb-46a7-ab7c-d4a33a709e1e",
+      "alias": "session counter limiter forms",
+      "description": "Username, password, otp and other auth forms.",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-username-password-form",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticatorConfig": "limitUserSessions",
+          "authenticator": "user-session-limits",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 21,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        }
+      ]
     }
   ],
   "authenticatorConfig": [
@@ -2078,6 +2125,16 @@
       "alias": "create unique user config",
       "config": {
         "require.password.update.after.registration": "false"
+      }
+    },
+    {
+      "id": "65653e31-6113-4e20-87a6-f4a9678d8147",
+      "alias": "limitUserSessions",
+      "config": {
+        "errorMessage": "You cannot login. Please, contact your Administrator",
+        "userClientLimit": "3",
+        "behavior": "Deny new session",
+        "userRealmLimit": "0"
       }
     },
     {
