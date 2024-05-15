@@ -1,4 +1,4 @@
-Description: "Keycloak"
+Description: "Keycloak service"
 
 Parameters:
   Project:
@@ -15,7 +15,6 @@ Parameters:
     AllowedValues: [ iam-keycloak ]
   DockerImageUri:
     Type: String
-    # TODO: replace default by parameter
     Default: quay.io/keycloak/keycloak:24.0.2
   ClusterPartition:
     Type: 'AWS::SSM::Parameter::Value<String>'
@@ -85,10 +84,19 @@ Resources:
               # TODO: replace by a secret
               Value: admin
             - Name: KEYCLOAK_ADMIN_PASSWORD
-              # TODO: replace by a secret
-              Value: admin
+              Value: admin # TODO: get password from secret
+              # TODO: get DB connection params from secret
             - Name: KC_DB
-              Value: dev-mem
+              Value: postgres
+            - Name: KC_DB_USERNAME
+              Value: keycloak
+            - Name: KC_DB_PASSWORD
+              Value: password
+            - Name: KC_DB_SCHEMA
+              Value: keycloak
+            - Name: KC_DB_URL
+              Value: jdbc:postgresql://iam-keycloak.cluster-chyozymq8sle.eu-west-1.rds.amazonaws.com:5432/keycloak
+
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
 
   TaskRole:
@@ -127,10 +135,11 @@ Resources:
           TargetGroupArn: !Ref TargetGroup
       PropagateTags: TASK_DEFINITION
 
+  # TODO: rename to ServiceSecurityGroup
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub "${ServiceName}-security-group"
+      GroupName: !Sub "${ServiceName}-service-security-group"
       GroupDescription: !Ref ServiceName
       VpcId:
         Fn::ImportValue: !Sub "${Environment}-vpc"
@@ -214,3 +223,10 @@ Resources:
           AliasTarget:
             HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
             DNSName: !GetAtt LoadBalancer.DNSName
+
+Outputs:
+  KeycloakServiceSecurityGroup:
+    Description: Keycloak service's security group
+    Value: !Ref SecurityGroup
+    Export:
+      Name: !Sub "${ServiceName}-service-security-group"

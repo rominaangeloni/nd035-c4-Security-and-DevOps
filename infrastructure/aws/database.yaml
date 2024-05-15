@@ -1,0 +1,129 @@
+Description: "Keycloak database"
+
+Parameters:
+  Project:
+    Type: String
+    Default: iam
+    AllowedValues: [ iam ]
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues: [ prod ]
+  ServiceName:
+    Type: String
+    Default: iam-keycloak
+    AllowedValues: [ iam-keycloak ]
+
+Resources:
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "${ServiceName}-database-${Environment}"
+      GroupDescription: !Sub "Security group for ${ServiceName}"
+      VpcId:
+        Fn::ImportValue: !Sub "${Environment}-vpc"
+      SecurityGroupIngress:
+        - FromPort: 5432
+          IpProtocol: tcp
+          SourceSecurityGroupId: sg-05f07ce6de52b239f
+          ToPort: 5432
+          Description: Allows access from VPN
+        - FromPort: 5432
+          IpProtocol: tcp
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub "${ServiceName}-service-security-group"
+          ToPort: 5432
+          Description: Allows access from Keycloak service
+      Tags:
+        # TODO: avoid explicit tags
+        - Value: database
+          Key: Role
+        - Value: platform-experience
+          Key: Team
+        - Value: platform-experience@wallapop.com
+          Key: Contact
+        - Value: https://github.com/Wallapop/iam
+          Key: Repo
+        - Value: Prod
+          Key: Env
+        - Value: iam
+          Key: Project
+
+  DatabaseCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      StorageEncrypted: true
+      EngineMode: provisioned
+      Port: 5432
+      DBClusterIdentifier: !Sub "${ServiceName}"
+      DatabaseName: keycloak
+      PreferredBackupWindow: 04:11-04:41
+      NetworkType: IPV4
+      VpcSecurityGroupIds:
+        - !Ref DatabaseSecurityGroup
+      CopyTagsToSnapshot: true
+      Engine: aurora-postgresql
+      EngineVersion: 15.4
+      StorageType: aurora
+      KmsKeyId: arn:aws:kms:eu-west-1:745640521341:key/a0c441a6-4d1d-4cb0-801f-45458c479b81
+      ServerlessV2ScalingConfiguration:
+        MinCapacity: 1
+        MaxCapacity: 2
+      PreferredMaintenanceWindow: wed:00:43-wed:01:13
+      DBSubnetGroupName: core-prod-privatedbsubnetgroup-tosshypm7sdt
+      DeletionProtection: true
+      ManageMasterUserPassword: true
+      MasterUserSecret:
+        KmsKeyId: arn:aws:kms:eu-west-1:745640521341:key/3b2eab83-99d8-4133-9a1f-8f86b1e2fc39
+      MasterUsername: postgres
+      DBClusterParameterGroupName: default.aurora-postgresql15
+      BackupRetentionPeriod: 7
+      # TODO: avoid explicit tags
+      Tags:
+        - Value: database
+          Key: Role
+        - Value: platform-experience
+          Key: Team
+        - Value: platform-experience@wallapop.com
+          Key: Contact
+        - Value: https://github.com/Wallapop/iam
+          Key: Repo
+        - Value: Prod
+          Key: Env
+        - Value: iam
+          Key: Project
+
+  DataBaseInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBClusterIdentifier: !Ref DatabaseCluster
+      DBParameterGroupName: default.aurora-postgresql15
+      Engine: aurora-postgresql
+      MultiAZ: false
+      PerformanceInsightsKMSKeyId: arn:aws:kms:eu-west-1:745640521341:key/a0c441a6-4d1d-4cb0-801f-45458c479b81
+      LicenseModel: postgresql-license
+      DBInstanceClass: db.serverless
+      PerformanceInsightsRetentionPeriod: 7
+      AvailabilityZone: eu-west-1c
+      OptionGroupName: default:aurora-postgresql-15
+      PreferredMaintenanceWindow: sat:22:05-sat:22:35
+      EnablePerformanceInsights: true
+      AutoMinorVersionUpgrade: true
+      DBSubnetGroupName: core-prod-privatedbsubnetgroup-tosshypm7sdt
+      DBInstanceIdentifier: !Sub "${ServiceName}-instance-1"
+      CACertificateIdentifier: rds-ca-rsa2048-g1
+      PubliclyAccessible: false
+      # TODO: avoid explicit tags
+      Tags:
+        - Value: database
+          Key: Role
+        - Value: platform-experience
+          Key: Team
+        - Value: platform-experience@wallapop.com
+          Key: Contact
+        - Value: https://github.com/Wallapop/iam
+          Key: Repo
+        - Value: Prod
+          Key: Env
+        - Value: iam
+          Key: Project
