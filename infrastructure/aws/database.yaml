@@ -1,10 +1,6 @@
 Description: "Keycloak database"
 
 Parameters:
-  Project:
-    Type: String
-    Default: iam
-    AllowedValues: [ iam ]
   Environment:
     Type: String
     Default: prod
@@ -28,26 +24,6 @@ Resources:
           SourceSecurityGroupId: sg-05f07ce6de52b239f
           ToPort: 5432
           Description: Allows access from VPN
-        - FromPort: 5432
-          IpProtocol: tcp
-          SourceSecurityGroupId:
-            Fn::ImportValue: !Sub "${ServiceName}-service-security-group"
-          ToPort: 5432
-          Description: Allows access from Keycloak service
-      Tags:
-        # TODO: avoid explicit tags
-        - Value: database
-          Key: Role
-        - Value: platform-experience
-          Key: Team
-        - Value: platform-experience@wallapop.com
-          Key: Contact
-        - Value: https://github.com/Wallapop/iam
-          Key: Repo
-        - Value: Prod
-          Key: Env
-        - Value: iam
-          Key: Project
 
   DatabaseCluster:
     Type: AWS::RDS::DBCluster
@@ -78,22 +54,8 @@ Resources:
       MasterUsername: postgres
       DBClusterParameterGroupName: default.aurora-postgresql15
       BackupRetentionPeriod: 7
-      # TODO: avoid explicit tags
-      Tags:
-        - Value: database
-          Key: Role
-        - Value: platform-experience
-          Key: Team
-        - Value: platform-experience@wallapop.com
-          Key: Contact
-        - Value: https://github.com/Wallapop/iam
-          Key: Repo
-        - Value: Prod
-          Key: Env
-        - Value: iam
-          Key: Project
 
-  DataBaseInstance:
+  DatabaseInstance:
     Type: AWS::RDS::DBInstance
     Properties:
       DBClusterIdentifier: !Ref DatabaseCluster
@@ -104,7 +66,6 @@ Resources:
       LicenseModel: postgresql-license
       DBInstanceClass: db.serverless
       PerformanceInsightsRetentionPeriod: 7
-      AvailabilityZone: eu-west-1c
       OptionGroupName: default:aurora-postgresql-15
       PreferredMaintenanceWindow: sat:22:05-sat:22:35
       EnablePerformanceInsights: true
@@ -113,17 +74,10 @@ Resources:
       DBInstanceIdentifier: !Sub "${ServiceName}-instance-1"
       CACertificateIdentifier: rds-ca-rsa2048-g1
       PubliclyAccessible: false
-      # TODO: avoid explicit tags
-      Tags:
-        - Value: database
-          Key: Role
-        - Value: platform-experience
-          Key: Team
-        - Value: platform-experience@wallapop.com
-          Key: Contact
-        - Value: https://github.com/Wallapop/iam
-          Key: Repo
-        - Value: Prod
-          Key: Env
-        - Value: iam
-          Key: Project
+
+Outputs:
+  DatabaseSecurityGroup:
+    Description: Keycloak database security group
+    Value: !Ref DatabaseSecurityGroup
+    Export:
+      Name: !Sub "${ServiceName}-database-security-group-${Environment}"

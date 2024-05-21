@@ -1,0 +1,38 @@
+version: 0.2
+
+env:
+  variables:
+    ECR: "567828013335.dkr.ecr.eu-west-1.amazonaws.com"
+    SERVICE: "iam"
+    S3_BUCKET: "wallapop-trigger-link-cicd"
+
+phases:
+  pre_build:
+    commands:
+      - $(aws ecr get-login --no-include-email --region eu-west-1)
+      - GIT_COMMIT=$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - GIT_BRANCH=$(git branch --format='%(refname:lstrip=-1) %(objectname)' | grep -E -v '(no branch|detached at)' | grep $GIT_COMMIT | head -n1 | cut -f1 -d' ')
+      - GIT_BRANCH_NORMALIZED=$(echo $GIT_BRANCH | sed 's/\//-/g')
+    finally:
+      - echo "GIT_COMMIT => "$GIT_COMMIT
+      - echo "GIT_BRANCH => "$GIT_BRANCH
+  build:
+    commands:
+      # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
+      - docker run -v "$PWD":/code -w /code ${ECR}/cfn-lint:stable --ignore-checks E9000 E9001 -t infrastructure/aws/*.yaml
+  post_build:
+    commands:
+      - RELEASE_NAME=${GIT_BRANCH_NORMALIZED}
+
+      # CodePipeline Trigger
+      - ./infrastructure/buildspec/generate_tags.sh
+      - zip -r ${RELEASE_NAME}.zip infrastructure/aws/*
+      - aws s3 cp ${RELEASE_NAME}.zip s3://${S3_BUCKET}/${SERVICE}/ --metadata commit=$GIT_COMMIT,commit-url="https://github.com/Wallapop/iam/commit/$GIT_COMMIT"
+      - |
+        case $GIT_BRANCH in
+          master)
+            aws s3 cp ${RELEASE_NAME}.zip s3://${S3_BUCKET}/${SERVICE}/beta.zip --metadata commit=$GIT_COMMIT,commit-url="https://github.com/Wallapop/iam/commit/$GIT_COMMIT"
+            ;;
+          *)
+            ;;
+        esac

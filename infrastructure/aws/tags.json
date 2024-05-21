@@ -1,0 +1,10 @@
+{
+  "Tags": {
+    "Env": "%ENV%",
+    "Repo": "https://github.com/Wallapop/iam",
+    "Project": "iam",
+    "Role": "%ROLE%",
+    "Team": "platform-experience",
+    "Contact": "platform-experience@wallapop.com"
+  }
+}

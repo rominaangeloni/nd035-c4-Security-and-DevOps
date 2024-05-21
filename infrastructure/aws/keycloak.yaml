@@ -19,8 +19,6 @@ Parameters:
   ClusterPartition:
     Type: 'AWS::SSM::Parameter::Value<String>'
     Description: ECS cluster partition where this service will run
-    # TODO: replace default by parameter
-    Default: /ecs/prod/iam-keycloak/partition
   ArnCertificate:
     Type: String
     Default: arn:aws:acm:eu-west-1:745640521341:certificate/6086ec3f-b0df-4831-b254-f7b96bf23b93
@@ -37,9 +35,6 @@ Mappings:
       prod: 1
     MaxCapacity:
       prod: 1
-  Java:
-    Memory:
-      prod: 1340m
 
 Resources:
   TaskDefinition:
@@ -113,6 +108,7 @@ Resources:
 
   Service:
     Type: AWS::ECS::Service
+    DependsOn: ListenerHTTPS
     Properties:
       Cluster: !Ref Environment
       ServiceName: !Ref ServiceName
@@ -135,7 +131,6 @@ Resources:
           TargetGroupArn: !Ref TargetGroup
       PropagateTags: TASK_DEFINITION
 
-  # TODO: rename to ServiceSecurityGroup
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -224,9 +219,13 @@ Resources:
             HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
             DNSName: !GetAtt LoadBalancer.DNSName
 
-Outputs:
-  KeycloakServiceSecurityGroup:
-    Description: Keycloak service's security group
-    Value: !Ref SecurityGroup
-    Export:
-      Name: !Sub "${ServiceName}-service-security-group"
+  KeycloakDatabaseSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId:
+        Fn::ImportValue: !Sub "${ServiceName}-database-security-group-${Environment}"
+      SourceSecurityGroupId: !Ref SecurityGroup
+      FromPort: 5432
+      ToPort: 5432
+      IpProtocol: tcp
+      Description: Allows Keycloak service to access the database

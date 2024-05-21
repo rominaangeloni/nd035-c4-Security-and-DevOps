@@ -1,0 +1,135 @@
+Parameters:
+  Project:
+    Type: String
+    Default: iam
+    AllowedValues: [iam]
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues: [prod]
+  SourceS3Bucket:
+    Type: String
+    Default: wallapop-trigger-link-cicd
+    AllowedValues: [wallapop-trigger-link-cicd]
+  ArtifactStoreBucket:
+    Type: String
+    Default: codebuild-cache-wallapop
+    AllowedValues: [codebuild-cache-wallapop]
+
+Mappings:
+  Source:
+    S3Key:
+      prod: iam/prod.zip
+
+Resources:
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub ${Project}-${Environment}
+      RoleArn:
+        Fn::ImportValue: execute-pipeline-role
+      ArtifactStore:
+        Location: !Ref ArtifactStoreBucket
+        Type: S3
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: IAM
+              ActionTypeId:
+                Category: Source
+                Provider: S3
+                Owner: AWS
+                Version: "1"
+              Configuration:
+                S3Bucket: !Ref SourceS3Bucket
+                S3ObjectKey: !FindInMap [Source, S3Key, !Ref Environment]
+                PollForSourceChanges: False
+              OutputArtifacts: [Name: App]
+              RunOrder: 1
+        - Name: CD
+          Actions:
+            - Name: Pipeline
+              RunOrder: 1
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: "1"
+                Provider: CloudFormation
+              InputArtifacts: [Name: App]
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_NAMED_IAM
+                StackName: !Sub ${Project}-pipeline-${Environment}
+                RoleArn:
+                  Fn::ImportValue: manage-pipeline-stack-role
+                TemplatePath: App::infrastructure/aws/pipeline.yaml
+                TemplateConfiguration: !Sub App::infrastructure/aws/pipeline_conf_${Environment}.json
+                ParameterOverrides: !Sub |
+                  {
+                    "Project": "${Project}",
+                    "Environment": "${Environment}",
+                    "SourceS3Bucket": "${SourceS3Bucket}",
+                    "ArtifactStoreBucket": "${ArtifactStoreBucket}"
+                  }
+        - Name: Infrastructure
+          Actions:
+            - Name: KeycloakDatabase
+              RunOrder: 1
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: "1"
+                Provider: CloudFormation
+              InputArtifacts: [Name: App]
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_NAMED_IAM
+                StackName: !Sub ${Project}-keycloak-database-${Environment}
+                RoleArn:
+                  Fn::ImportValue: manage-database-stack-role
+                TemplatePath: App::infrastructure/aws/database.yaml
+                TemplateConfiguration: !Sub App::infrastructure/aws/database_conf_${Environment}.json
+                ParameterOverrides: !Sub |
+                  { "Environment": "${Environment}" }
+        - Name: Deploy
+          Actions:
+            - Name: Keycloak
+              RunOrder: 1
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: "1"
+                Provider: CloudFormation
+              InputArtifacts: [ Name: App ]
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_NAMED_IAM
+                StackName: !Sub ${Project}-keycloak-service-${Environment}
+                RoleArn:
+                  Fn::ImportValue: manage-application-stack-role
+                TemplatePath: App::infrastructure/aws/keycloak.yaml
+                TemplateConfiguration: !Sub App::infrastructure/aws/keycloak_conf_${Environment}.json
+                ParameterOverrides: !Sub |
+                  {
+                    "Project": "${Project}",
+                    "Environment": "${Environment}",
+                    "ClusterPartition": "/ecs/${Environment}/iam-keycloak/partition"
+                  }
+  EventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${Project}-pipeline-cloudwatch-event-rule-${Environment}"
+      EventPattern:
+        source: [aws.s3]
+        detail-type: ["AWS API Call via CloudTrail"]
+        detail:
+          eventSource: [s3.amazonaws.com]
+          eventName: [CopyObject, PutObject, CompleteMultipartUpload]
+          requestParameters:
+            bucketName: [!Ref SourceS3Bucket]
+            key: [!FindInMap [Source, S3Key, !Ref Environment]]
+      Targets:
+        - Arn: !Sub "arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:${Pipeline}"
+          RoleArn:
+            Fn::ImportValue: trigger-pipeline-role
+          Id: !Sub "${Project}-pipeline-${Environment}"
