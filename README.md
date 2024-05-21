@@ -120,3 +120,8 @@ Flow details:
 12. Portal Hero calls Wallapop Connect API using the access token
 13. API Gateway validates the access token
 14. On successful validation, API Gateway forwards the request to Catalog
+
+# Deployment
+
+1. Merge PR into `main`
+2. Trigger deploy with Deploy bot: `deploy env=prod service=iam tag=main`
