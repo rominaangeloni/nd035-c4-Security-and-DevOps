@@ -1,6 +1,6 @@
 /* Note: the script must be run while connected to the keycloak database */
 
-create user keycloak with password 'password'
+create user keycloak with password 'password' /* Get password from secret */
     createdb;
 
 grant keycloak to postgres;
