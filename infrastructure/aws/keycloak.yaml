@@ -37,6 +37,17 @@ Mappings:
       prod: 1
 
 Resources:
+  KeycloakAdminUserSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/admin"
+      Description: Secrets for the Keycloak service
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "admin"}'
+        GenerateStringKey: "password"
+        PasswordLength: 30
+        ExcludeCharacters: '"@/\'
+
   KeycloakDatabaseUserSecrets:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -50,7 +61,9 @@ Resources:
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
-    DependsOn: KeycloakDatabaseUserSecrets
+    DependsOn:
+      - KeycloakAdminUserSecrets
+      - KeycloakDatabaseUserSecrets
     Properties:
       Family: !Ref ServiceName
       Memory: !FindInMap [ Task, Memory, !Ref Environment ]
@@ -84,14 +97,10 @@ Resources:
               Value: INFO,org.keycloak.events:DEBUG
             - Name: KC_HEALTH_ENABLED
               Value: true
-              # TODO: ensure this is needed
-            - Name: KEYCLOAK_USER
-              Value: admin
             - Name: KEYCLOAK_ADMIN
-              # TODO: replace by a secret
-              Value: admin
+              Value: !Sub '{{resolve:secretsmanager:/${Environment}/${Project}/${ServiceName}/admin:SecretString:username}}'
             - Name: KEYCLOAK_ADMIN_PASSWORD
-              Value: admin # TODO: get password from secret
+              Value: !Sub '{{resolve:secretsmanager:/${Environment}/${Project}/${ServiceName}/admin:SecretString:password}}'
             - Name: KC_DB
               Value: postgres
             - Name: KC_DB_USERNAME
