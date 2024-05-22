@@ -6,3 +6,7 @@
 
 #IntelliJ
 .idea/
+*.iml
+
+#target
+*target/

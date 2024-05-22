@@ -1,11 +1,11 @@
 # IAM
 Identity and access manager (Keycloak)
 
-1- Run docker compose 
+## Steps 
 
-2- Select `wallapop-connect` realm
+1- Build users [extension](./extensions/docs)
 
-3- Create a user with password (complete all data and put "email verified" in false)
+2 -Run docker compose
 
 4- Download [oauth2c](https://github.com/cloudentity/oauth2c) and run :
 ```
@@ -14,7 +14,7 @@ oauth2c "http://localhost:9090/realms/wallapop-connect" \
 --grant-type authorization_code  \
 --pkce  \
 --client-id portal-hero  \
---client-secret OiICRTehnwyXkKOVRAFFbTKNjAp2ez4w  \
+--client-secret dSGJlZFLlIZN2ZCIXeW0lAWuq5bnzxHI  \
 --auth-method client_secret_basic  \
 --response-types code  \
 --response-mode query 
