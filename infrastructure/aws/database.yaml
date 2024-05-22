@@ -21,7 +21,8 @@ Resources:
       SecurityGroupIngress:
         - FromPort: 5432
           IpProtocol: tcp
-          SourceSecurityGroupId: sg-05f07ce6de52b239f
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub "VPN-${Environment}-sg"
           ToPort: 5432
           Description: Allows access from VPN
 
@@ -70,7 +71,8 @@ Resources:
       PreferredMaintenanceWindow: sat:22:05-sat:22:35
       EnablePerformanceInsights: true
       AutoMinorVersionUpgrade: true
-      DBSubnetGroupName: core-prod-privatedbsubnetgroup-tosshypm7sdt
+      DBSubnetGroupName:
+        Fn::ImportValue: !Sub "${Environment}-rds-private-subnetgroup"
       DBInstanceIdentifier: !Sub "${ServiceName}-instance-1"
       CACertificateIdentifier: rds-ca-rsa2048-g1
       PubliclyAccessible: false

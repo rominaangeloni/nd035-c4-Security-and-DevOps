@@ -30,7 +30,7 @@ phases:
       - aws s3 cp ${RELEASE_NAME}.zip s3://${S3_BUCKET}/${SERVICE}/ --metadata commit=$GIT_COMMIT,commit-url="https://github.com/Wallapop/iam/commit/$GIT_COMMIT"
       - |
         case $GIT_BRANCH in
-          master)
+          main)
             aws s3 cp ${RELEASE_NAME}.zip s3://${S3_BUCKET}/${SERVICE}/beta.zip --metadata commit=$GIT_COMMIT,commit-url="https://github.com/Wallapop/iam/commit/$GIT_COMMIT"
             ;;
           *)
