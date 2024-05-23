@@ -9,6 +9,14 @@ Parameters:
     Type: String
     Default: prod
     AllowedValues: [ prod ]
+  PrivateHostName:
+    Type: String
+    Default: private-iam.wallapop.com
+    AllowedValues: [ private-iam.wallapop.com ]
+  PublicHostName:
+    Type: String
+    Default: iam.wallapop.com
+    AllowedValues: [ iam.wallapop.com ]
   ServiceName:
     Type: String
     Default: iam-keycloak
@@ -86,8 +94,9 @@ Resources:
             - Name: KC_HTTP_PORT
               Value: 8080
             - Name: KC_HOSTNAME
-              # TODO: replace by a parameter and reuse the same for the DNS
-              Value: iam.wallapop.com
+              Value: !Sub "${PublicHostName}"
+            - Name: KC_HOSTNAME_ADMIN
+              Value: !Sub "${PrivateHostName}"
             - Name: KC_PROXY_HEADERS
               Value: xforwarded
             - Name: KC_HTTP_ENABLED
@@ -98,15 +107,15 @@ Resources:
             - Name: KC_HEALTH_ENABLED
               Value: true
             - Name: KEYCLOAK_ADMIN
-              Value: !Sub '{{resolve:secretsmanager:/${Environment}/${Project}/${ServiceName}/admin:SecretString:username}}'
+              Value: !Sub "{{resolve:secretsmanager:/${Environment}/${Project}/${ServiceName}/admin:SecretString:username}}"
             - Name: KEYCLOAK_ADMIN_PASSWORD
-              Value: !Sub '{{resolve:secretsmanager:/${Environment}/${Project}/${ServiceName}/admin:SecretString:password}}'
+              Value: !Sub "{{resolve:secretsmanager:/${Environment}/${Project}/${ServiceName}/admin:SecretString:password}}"
             - Name: KC_DB
               Value: postgres
             - Name: KC_DB_USERNAME
-              Value: !Sub '{{resolve:secretsmanager:/${Environment}/${Project}/rds/${ServiceName}:SecretString:username}}'
+              Value: !Sub "{{resolve:secretsmanager:/${Environment}/${Project}/rds/${ServiceName}:SecretString:username}}"
             - Name: KC_DB_PASSWORD
-              Value: !Sub '{{resolve:secretsmanager:/${Environment}/${Project}/rds/${ServiceName}:SecretString:password}}'
+              Value: !Sub "{{resolve:secretsmanager:/${Environment}/${Project}/rds/${ServiceName}:SecretString:password}}"
             - Name: KC_DB_SCHEMA
               Value: keycloak
             - Name: KC_DB_URL
@@ -127,7 +136,9 @@ Resources:
 
   Service:
     Type: AWS::ECS::Service
-    DependsOn: ListenerHTTPS
+    DependsOn:
+      - ListenerHTTPS
+      - PublicListenerHTTPS
     Properties:
       Cluster: !Ref Environment
       ServiceName: !Ref ServiceName
@@ -148,6 +159,9 @@ Resources:
         - ContainerName: !Ref ServiceName
           ContainerPort: 8080
           TargetGroupArn: !Ref TargetGroup
+        - ContainerName: !Ref ServiceName
+          ContainerPort: 8080
+          TargetGroupArn: !Ref PublicTargetGroup
       PropagateTags: TASK_DEFINITION
 
   SecurityGroup:
@@ -165,9 +179,11 @@ Resources:
               !Sub ecs-${Environment}-clusterALB-SG
           ToPort: 8080
           Description: 'Allow access from ALB'
-      Tags:
-        - Key: Name
-          Value: !Sub "${ServiceName}-security-group"
+        - FromPort: 8080
+          IpProtocol: tcp
+          SourceSecurityGroupId: !Ref PublicLoadBalancerSecurityGroup
+          ToPort: 8080
+          Description: 'Allow access from public Security Group'
 
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -231,12 +247,111 @@ Resources:
       HostedZoneId:
         Fn::ImportValue: !Sub "${Environment}-public-hosted-zone"
       RecordSets:
-        # TODO: replace by a parameter and reuse the same for the Keycloak Hostname
-        - Name: !Sub "${Project}.wallapop.com."
+        - Name: !Sub "${PrivateHostName}."
           Type: A
           AliasTarget:
             HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
             DNSName: !GetAtt LoadBalancer.DNSName
+
+  PublicLoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "${ServiceName}-public-alb-security-group"
+      GroupDescription: !Sub "Security group for ${ServiceName} public ALB"
+      VpcId:
+        Fn::ImportValue: !Sub "${Environment}-vpc"
+      SecurityGroupIngress:
+        - FromPort: 443
+          IpProtocol: tcp
+          CidrIp: 54.73.44.58/32
+          ToPort: 443
+          Description: Allows access from VPN public IP
+        - FromPort: 443
+          IpProtocol: tcp
+          CidrIp: 52.18.252.164/32
+          ToPort: 443
+          Description: Allows access from VPN public IP
+
+  PublicLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub "${ServiceName}-public-alb"
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref PublicLoadBalancerSecurityGroup
+      Subnets:
+        - Fn::ImportValue:
+            !Sub "${Environment}-public-subnet-a"
+        - Fn::ImportValue:
+            !Sub "${Environment}-public-subnet-b"
+        - Fn::ImportValue:
+            !Sub "${Environment}-public-subnet-c"
+
+  PublicTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: PublicLoadBalancer
+    Properties:
+      VpcId:
+        Fn::ImportValue:
+          !Sub "${Environment}-vpc"
+      Port: 8080
+      Protocol: HTTP
+      Matcher:
+        HttpCode: '200-299'
+      HealthCheckPort: '8080'
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: '/health'
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 10
+      TargetType: ip
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '60'
+        - Key: slow_start.duration_seconds
+          Value: '60'
+
+  PublicListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: text/plain
+            MessageBody: Forbidden
+            StatusCode: 403
+      LoadBalancerArn: !Ref PublicLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref ArnCertificate
+
+  PublicListenerHTTPSRules:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Priority: 1
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref PublicTargetGroup
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - "/realms/*"
+            - "/resources/*"
+      ListenerArn: !Ref PublicListenerHTTPS
+
+  PublicDnsAlias:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId:
+        Fn::ImportValue: !Sub "${Environment}-public-hosted-zone"
+      RecordSets:
+        - Name: !Sub "${PublicHostName}."
+          Type: A
+          AliasTarget:
+            HostedZoneId: !GetAtt PublicLoadBalancer.CanonicalHostedZoneID
+            DNSName: !GetAtt PublicLoadBalancer.DNSName
 
   KeycloakDatabaseSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
