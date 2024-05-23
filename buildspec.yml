@@ -3,7 +3,8 @@ version: 0.2
 env:
   variables:
     ECR: "567828013335.dkr.ecr.eu-west-1.amazonaws.com"
-    SERVICE: "iam"
+    PROJECT: "iam"
+    SERVICE: "iam-keycloak"
     S3_BUCKET: "wallapop-trigger-link-cicd"
 
 phases:
@@ -13,6 +14,7 @@ phases:
       - GIT_COMMIT=$CODEBUILD_RESOLVED_SOURCE_VERSION
       - GIT_BRANCH=$(git branch --format='%(refname:lstrip=-1) %(objectname)' | grep -E -v '(no branch|detached at)' | grep $GIT_COMMIT | head -n1 | cut -f1 -d' ')
       - GIT_BRANCH_NORMALIZED=$(echo $GIT_BRANCH | sed 's/\//-/g')
+      - DOCKER_URI="${ECR}/${SERVICE}"
     finally:
       - echo "GIT_COMMIT => "$GIT_COMMIT
       - echo "GIT_BRANCH => "$GIT_BRANCH
@@ -20,19 +22,32 @@ phases:
     commands:
       # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
       - docker run -v "$PWD":/code -w /code ${ECR}/cfn-lint:stable --ignore-checks E9000 E9001 -t infrastructure/aws/*.yaml
+      - docker build -f infrastructure/docker/Dockerfile -t ${SERVICE}:current --build-arg ECR=${ECR} .
   post_build:
     commands:
+      # Docker Images
       - RELEASE_NAME=${GIT_BRANCH_NORMALIZED}
-
-      # CodePipeline Trigger
-      - ./infrastructure/buildspec/generate_tags.sh
-      - zip -r ${RELEASE_NAME}.zip infrastructure/aws/*
-      - aws s3 cp ${RELEASE_NAME}.zip s3://${S3_BUCKET}/${SERVICE}/ --metadata commit=$GIT_COMMIT,commit-url="https://github.com/Wallapop/iam/commit/$GIT_COMMIT"
       - |
         case $GIT_BRANCH in
           main)
-            aws s3 cp ${RELEASE_NAME}.zip s3://${S3_BUCKET}/${SERVICE}/beta.zip --metadata commit=$GIT_COMMIT,commit-url="https://github.com/Wallapop/iam/commit/$GIT_COMMIT"
+            DOCKER_TAGS=${GIT_COMMIT},${RELEASE_NAME},latest
+            ;;
+          *)
+            DOCKER_TAGS=${GIT_COMMIT},${RELEASE_NAME}
+            ;;
+        esac
+      - echo $DOCKER_TAGS | xargs -d , -n 1 sh -c 'for tag do docker tag ${SERVICE}:current ${DOCKER_URI}:$tag; docker push ${DOCKER_URI}:$tag; done' _
+
+      # CodePipeline Trigger
+      - ./infrastructure/buildspec/generate_tags.sh
+      - printf '{"docker":"%s"}' "${DOCKER_URI}:${GIT_COMMIT}" > info.json
+      - zip -r ${RELEASE_NAME}.zip info.json infrastructure/aws/*
+      - aws s3 cp ${RELEASE_NAME}.zip s3://${S3_BUCKET}/${PROJECT}/ --metadata commit=$GIT_COMMIT,commit-url="https://github.com/Wallapop/iam/commit/$GIT_COMMIT"
+      - |
+        case $GIT_BRANCH in
+          main)
+            aws s3 cp ${RELEASE_NAME}.zip s3://${S3_BUCKET}/${PROJECT}/beta.zip --metadata commit=$GIT_COMMIT,commit-url="https://github.com/Wallapop/iam/commit/$GIT_COMMIT"
             ;;
           *)
             ;;
-        esac
+        esac  

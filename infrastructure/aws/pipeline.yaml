@@ -113,6 +113,7 @@ Resources:
                   {
                     "Project": "${Project}",
                     "Environment": "${Environment}",
+                    "DockerImageUri": { "Fn::GetParam" : ["App", "info.json", "docker"]},
                     "ClusterPartition": "/ecs/${Environment}/iam-keycloak/partition"
                   }
   EventRule:

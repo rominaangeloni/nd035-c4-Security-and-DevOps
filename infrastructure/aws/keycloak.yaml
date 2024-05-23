@@ -23,7 +23,6 @@ Parameters:
     AllowedValues: [ iam-keycloak ]
   DockerImageUri:
     Type: String
-    Default: quay.io/keycloak/keycloak:24.0.4
   ClusterPartition:
     Type: 'AWS::SSM::Parameter::Value<String>'
     Description: ECS cluster partition where this service will run
