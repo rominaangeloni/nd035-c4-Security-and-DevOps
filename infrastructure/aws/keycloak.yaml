@@ -75,6 +75,7 @@ Resources:
       Family: !Ref ServiceName
       Memory: !FindInMap [ Task, Memory, !Ref Environment ]
       NetworkMode: awsvpc
+      ExecutionRoleArn: !GetAtt TaskRole.Arn
       TaskRoleArn: !GetAtt TaskRole.Arn
       PlacementConstraints:
         - Type: memberOf
@@ -105,20 +106,21 @@ Resources:
               Value: INFO,org.keycloak.events:DEBUG
             - Name: KC_HEALTH_ENABLED
               Value: true
-            - Name: KEYCLOAK_ADMIN
-              Value: !Sub "{{resolve:secretsmanager:/${Environment}/${Project}/${ServiceName}/admin:SecretString:username}}"
-            - Name: KEYCLOAK_ADMIN_PASSWORD
-              Value: !Sub "{{resolve:secretsmanager:/${Environment}/${Project}/${ServiceName}/admin:SecretString:password}}"
             - Name: KC_DB
               Value: postgres
-            - Name: KC_DB_USERNAME
-              Value: !Sub "{{resolve:secretsmanager:/${Environment}/${Project}/rds/${ServiceName}:SecretString:username}}"
-            - Name: KC_DB_PASSWORD
-              Value: !Sub "{{resolve:secretsmanager:/${Environment}/${Project}/rds/${ServiceName}:SecretString:password}}"
             - Name: KC_DB_SCHEMA
               Value: keycloak
             - Name: KC_DB_URL
               Value: jdbc:postgresql://iam-keycloak.cluster-chyozymq8sle.eu-west-1.rds.amazonaws.com:5432/keycloak
+          Secrets:
+            - Name: KEYCLOAK_ADMIN
+              ValueFrom: !Join [ ':', [ !Ref KeycloakAdminUserSecrets, 'username::' ]]
+            - Name: KEYCLOAK_ADMIN_PASSWORD
+              ValueFrom: !Join [ ':', [ !Ref KeycloakAdminUserSecrets, 'password::' ]]
+            - Name: KC_DB_USERNAME
+              ValueFrom: !Join [ ':', [ !Ref KeycloakDatabaseUserSecrets, 'username::' ]]
+            - Name: KC_DB_PASSWORD
+              ValueFrom: !Join [ ':', [ !Ref KeycloakDatabaseUserSecrets, 'password::' ]]
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
 
   TaskRole:
@@ -132,6 +134,27 @@ Resources:
             Principal:
               Service: ecs-tasks.amazonaws.com
             Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Ref TaskPolicy
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  TaskPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub "${ServiceName}-task-policy"
+      Description: !Sub "Task policy for ${ServiceName} task role"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource:
+              - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:/${Environment}/${Project}/*"
+          - Action:
+              - kms:Decrypt
+            Effect: Allow
+            Resource: '*'
 
   Service:
     Type: AWS::ECS::Service

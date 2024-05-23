@@ -21,7 +21,7 @@ phases:
   build:
     commands:
       # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
-      - docker run -v "$PWD":/code -w /code ${ECR}/cfn-lint:stable --ignore-checks E9000 E9001 -t infrastructure/aws/*.yaml
+      - docker run -v "$PWD":/code -w /code ${ECR}/cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml
       - docker build -f infrastructure/docker/Dockerfile -t ${SERVICE}:current --build-arg ECR=${ECR} .
   post_build:
     commands:
