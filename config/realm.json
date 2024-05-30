@@ -705,6 +705,21 @@
       },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
+      "protocolMappers": [
+        {
+          "id": "7a7a574a-bfbd-4ff5-8c18-33d933a0538c",
+          "name": "monolithUserId",
+          "protocol": "openid-connect",
+          "protocolMapper": "user-id-as-sub-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ],
       "defaultClientScopes": [
         "offline_access"
       ],
