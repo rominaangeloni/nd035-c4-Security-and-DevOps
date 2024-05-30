@@ -12,7 +12,7 @@ import java.util.List;
 public class UserIdAsSubMapper extends AbstractOIDCProtocolMapper implements OIDCAccessTokenMapper,
         OIDCIDTokenMapper, UserInfoTokenMapper {
 
-    public static final String PROVIDER_ID = "user-id-as-sub-mapper";
+    public static final String PROVIDER_ID = "wallapop-user-id";
 
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<>();
 
@@ -22,12 +22,12 @@ public class UserIdAsSubMapper extends AbstractOIDCProtocolMapper implements OID
 
     @Override
     public String getDisplayCategory() {
-        return "Wallapop User ID Token Mapper";
+        return "Access token mapper";
     }
 
     @Override
     public String getDisplayType() {
-        return "Overwrite Sub with Wallapop User ID";
+        return "User Attribute";
     }
 
     @Override
