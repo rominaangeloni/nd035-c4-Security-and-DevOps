@@ -2,7 +2,6 @@ package org.keycloak.storage.monolith.user;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.connections.jpa.JpaConnectionProvider;
 import org.keycloak.credential.CredentialInput;
@@ -18,6 +17,8 @@ import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class MonolithUserProvider implements UserStorageProvider,
         UserLookupProvider,
         CredentialInputValidator
 {
-    private static final Logger logger = Logger.getLogger(MonolithUserProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(MonolithUserProvider.class);
     public static final String PASSWORD_CACHE_KEY = MonolithUserAdapter.class.getName() + ".password";
 
     protected EntityManager em;

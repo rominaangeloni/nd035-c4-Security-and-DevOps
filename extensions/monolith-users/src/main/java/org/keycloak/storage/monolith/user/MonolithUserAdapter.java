@@ -16,13 +16,14 @@
  */
 package org.keycloak.storage.monolith.user;
 
-import org.jboss.logging.Logger;
 import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ import java.util.stream.Stream;
  * @version $Revision: 1 $
  */
 public class MonolithUserAdapter extends AbstractUserAdapterFederatedStorage {
-    private static final Logger logger = Logger.getLogger(MonolithUserAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(MonolithUserAdapter.class);
     protected MonolithUser entity;
     protected String keycloakId;
 

@@ -12,7 +12,6 @@
 
     <properties>
         <keycloak>24.0.4</keycloak>
-        <jboss-logging>3.6.0.Final</jboss-logging>
     </properties>
 
     <dependencies>
@@ -32,12 +31,6 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-model-jpa</artifactId>
             <version>${keycloak}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging</artifactId>
-            <version>${jboss-logging}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

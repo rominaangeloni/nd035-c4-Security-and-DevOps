@@ -16,10 +16,11 @@
  */
 package org.keycloak.storage.monolith.user;
 
-import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.storage.UserStorageProviderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -28,7 +29,7 @@ import org.keycloak.storage.UserStorageProviderFactory;
 public class MonolithUserProviderFactory implements UserStorageProviderFactory<MonolithUserProvider> {
     public static final String PROVIDER_ID = "monolith-users-authorization-jpa";
 
-    private static final Logger logger = Logger.getLogger(MonolithUserProviderFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(MonolithUserProviderFactory.class);
 
     @Override
     public MonolithUserProvider create(KeycloakSession session, ComponentModel model) {
