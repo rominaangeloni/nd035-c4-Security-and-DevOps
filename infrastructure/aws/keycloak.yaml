@@ -66,6 +66,17 @@ Resources:
         PasswordLength: 30
         ExcludeCharacters: '"@/\'
 
+  KeycloakMonolithDbSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/rds/monolith/${ServiceName}"
+      Description: Secrets for the Keycloak service's credentials to connect to Monolith's DB
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "keycloak"}'
+        GenerateStringKey: "password"
+        PasswordLength: 30
+        ExcludeCharacters: '"@/\'
+
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     DependsOn:
