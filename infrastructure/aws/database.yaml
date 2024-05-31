@@ -26,6 +26,14 @@ Resources:
           ToPort: 5432
           Description: Allows access from VPN
 
+  DatabaseClusterParameterGroup:
+    Type: AWS::RDS::DBClusterParameterGroup
+    Properties:
+      Description: !Sub "Custom parameter group for ${ServiceName} database"
+      Family: aurora-postgresql15
+      Parameters:
+        max_prepared_transactions: "400"
+
   DatabaseCluster:
     Type: AWS::RDS::DBCluster
     Properties:
@@ -53,7 +61,7 @@ Resources:
       MasterUserSecret:
         KmsKeyId: arn:aws:kms:eu-west-1:745640521341:key/3b2eab83-99d8-4133-9a1f-8f86b1e2fc39
       MasterUsername: postgres
-      DBClusterParameterGroupName: default.aurora-postgresql15
+      DBClusterParameterGroupName: !Ref DatabaseClusterParameterGroup
       BackupRetentionPeriod: 7
 
   DatabaseInstance:
