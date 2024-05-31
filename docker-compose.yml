@@ -9,7 +9,7 @@ services:
       MYSQL_DATABASE: monolith
     volumes:
       - user-db:/var/lib/mysql-db/data
-      - ./scripts/users-database/user-setup.sql:/docker-entrypoint-initdb.d/setup.sql
+      - ./scripts/users-database/test-users-setup.sql:/docker-entrypoint-initdb.d/setup.sql
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.4

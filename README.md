@@ -3,6 +3,8 @@ Identity and access manager (Keycloak)
 
 ## Steps 
 
+### Test it locally
+
 1- Build users [extension](./extensions/docs)
 
 2 -Run docker compose
@@ -19,6 +21,8 @@ oauth2c "http://localhost:9090/realms/wallapop-connect" \
 --response-types code  \
 --response-mode query 
 ```
+
+You can log in with users created automatically from dev [script](scripts/users-database/test-users-setup.sql)
 
 
 # Flows
