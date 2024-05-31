@@ -123,6 +123,8 @@ Resources:
               Value: keycloak
             - Name: KC_DB_URL
               Value: jdbc:postgresql://iam-keycloak.cluster-chyozymq8sle.eu-west-1.rds.amazonaws.com:5432/keycloak
+            - Name: MONOLITH_DB_URL
+              Value: jdbc:mysql://monolith-primary.chyozymq8sle.eu-west-1.rds.amazonaws.com:3306/shnmpro2?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&autoReconnect=true&useSSL=false&isReadOnly=true
           Secrets:
             - Name: KEYCLOAK_ADMIN
               ValueFrom: !Join [ ':', [ !Ref KeycloakAdminUserSecrets, 'username::' ]]
@@ -132,6 +134,10 @@ Resources:
               ValueFrom: !Join [ ':', [ !Ref KeycloakDatabaseUserSecrets, 'username::' ]]
             - Name: KC_DB_PASSWORD
               ValueFrom: !Join [ ':', [ !Ref KeycloakDatabaseUserSecrets, 'password::' ]]
+            - Name: MONOLITH_DB_USERNAME
+              ValueFrom: !Join [ ':', [ !Ref KeycloakMonolithDbSecrets, 'username::' ] ]
+            - Name: MONOLITH_DB_PASSWORD
+              ValueFrom: !Join [ ':', [ !Ref KeycloakMonolithDbSecrets, 'password::' ] ]
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
 
   TaskRole:
@@ -396,3 +402,14 @@ Resources:
       ToPort: 5432
       IpProtocol: tcp
       Description: Allows Keycloak service to access the database
+
+  MonolithDatabaseSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId:
+        Fn::ImportValue: !Sub "${Environment}-monolith-sg"
+      SourceSecurityGroupId: !Ref SecurityGroup
+      FromPort: 3306
+      ToPort: 3306
+      IpProtocol: tcp
+      Description: !Sub "Allow access from ${ServiceName}"

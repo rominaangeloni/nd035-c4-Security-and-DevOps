@@ -8,6 +8,9 @@ env:
     S3_BUCKET: "wallapop-trigger-link-cicd"
 
 phases:
+  install:
+    runtime-versions:
+      java: corretto17
   pre_build:
     commands:
       - $(aws ecr get-login --no-include-email --region eu-west-1)
@@ -20,6 +23,11 @@ phases:
       - echo "GIT_BRANCH => "$GIT_BRANCH
   build:
     commands:
+      - mvn -f extensions/monolith-users/pom.xml clean install
+      - mv extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar infrastructure/docker/monolith-users.jar
+      - mvn -f extensions/access-token-mapper/pom.xml clean install
+      - mv extensions/access-token-mapper/target/access-token-mapper.jar infrastructure/docker/access-token-mapper.jar
+      - mv extensions/monolith-users/conf/quarkus.properties infrastructure/docker
       # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
       - docker run -v "$PWD":/code -w /code ${ECR}/cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml
       - docker build -f infrastructure/docker/Dockerfile -t ${SERVICE}:current --build-arg ECR=${ECR} .

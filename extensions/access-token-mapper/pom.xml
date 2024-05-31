@@ -12,6 +12,7 @@
 
   <properties>
     <keycloak>24.0.4</keycloak>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <dependencies>

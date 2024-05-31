@@ -4,8 +4,8 @@
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
              version="3.0">
     <persistence-unit name="user-store" transaction-type="JTA">
-        <class>org.keycloak.storage.monolith.user.MonolithUser</class>
-        <class>org.keycloak.storage.monolith.user.MonolithUserPerk</class>
+        <class>com.wallapop.iam.keycloak.extensions.monolithusers.MonolithUser</class>
+        <class>com.wallapop.iam.keycloak.extensions.monolithusers.MonolithUserPerk</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
             <!-- Sets the name of the datasource to be the same as the datasource name in quarkus.properties-->
@@ -13,6 +13,7 @@
             <property name="jakarta.persistence.transactionType" value="JTA" />
             <property name="hibernate.hbm2ddl.auto" value="none" />
             <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.temp.use_jdbc_metadata_defaults" value="false" />
         </properties>
     </persistence-unit>
 </persistence>

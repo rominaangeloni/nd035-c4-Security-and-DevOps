@@ -1,4 +1,4 @@
-package org.keycloak.storage.monolith.user;
+package com.wallapop.iam.keycloak.extensions.monolithusers;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -16,6 +16,9 @@ import org.keycloak.models.cache.CachedUserModel;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
+import com.wallapop.iam.keycloak.extensions.monolithusers.password.PasswordValidator;
+import com.wallapop.iam.keycloak.extensions.monolithusers.password.ClearTextPassword;
+import com.wallapop.iam.keycloak.extensions.monolithusers.password.HashedPassword;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +105,15 @@ public class MonolithUserProvider implements UserStorageProvider,
         logger.info("Validating user");
         if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) return false;
         UserCredentialModel cred = (UserCredentialModel)input;
+
         String password = getPassword(user);
+
+        Boolean isValid = PasswordValidator.sameHash(new ClearTextPassword(cred.getValue()), new HashedPassword(password));
+        if (isValid) {
+            logger.info("User validation success with monolith database");
+            return true;
+        }
+        logger.info("Trying with plain text");
         return password != null && password.equals(cred.getValue());
     }
 

@@ -1,4 +1,4 @@
-package org.keycloak.storage.monolith.user;
+package com.wallapop.iam.keycloak.extensions.monolithusers;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

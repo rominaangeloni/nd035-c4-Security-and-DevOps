@@ -63,10 +63,10 @@ create table IF NOT EXISTS user_perks
     engine = InnoDB;
 
 INSERT INTO usr_usr (usrId, firstName, lastname, userEmailAddress, password_) VALUES
-(1, 'Alice', 'Cooper', 'alice@example.com', '12345'),
-(2, 'Bob', 'Sponge', 'bob@example.com', '12345'),
-(3, 'Kurt', 'Cobain', 'kurt@example.com', '12345'),
-(4, 'Patrick', 'Store', 'patrick@example.com', '12345');
+(1, 'Alice', 'Cooper', 'alice@example.com', '$2a$10$/f9YLESunE6yoQF8/CtlOOuFogfy4bkyggnrINXXuHIQbGM02RPV6'),
+(2, 'Bob', 'Sponge', 'bob@example.com', '$2a$10$/f9YLESunE6yoQF8/CtlOOuFogfy4bkyggnrINXXuHIQbGM02RPV6'),
+(3, 'Kurt', 'Cobain', 'kurt@example.com', '$2a$10$/f9YLESunE6yoQF8/CtlOOuFogfy4bkyggnrINXXuHIQbGM02RPV6'),
+(4, 'Patrick', 'Store', 'patrick@example.com', '$2a$10$/f9YLESunE6yoQF8/CtlOOuFogfy4bkyggnrINXXuHIQbGM02RPV6');
 
 INSERT INTO user_perks (perk_id, user_id, type, category_id, period_end) VALUES
 (10, 1, 'USER_PROFILE_FEATURED', 100, FROM_UNIXTIME(1894956553, '%Y-%m-%d %H:%i:%s')),

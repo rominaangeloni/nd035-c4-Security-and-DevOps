@@ -29,6 +29,9 @@ services:
       - KC_DB_PASSWORD=password
       - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak
       - KC_HOSTNAME_ADMIN_URL=http://localhost:9091
+      - MONOLITH_DB_USERNAME=root
+      - MONOLITH_DB_PASSWORD=root
+      - MONOLITH_DB_URL=jdbc:mysql://users-database:3306/monolith?isReadOnly=true
     depends_on:
       - users-database
       - keycloak-db
@@ -36,7 +39,7 @@ services:
     volumes:
       - ./config/realm.json:/opt/keycloak/data/import/realm.json
       - ./extensions/access-token-mapper/target/access-token-mapper.jar:/opt/keycloak/providers/access-token-mapper.jar
-      - ./extensions/monolith-users/target/monolith-users.jar:/opt/keycloak/providers/monolith-users.jar
+      - ./extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar:/opt/keycloak/providers/monolith-users.jar
       - ./extensions/monolith-users/conf/quarkus.properties:/opt/keycloak/conf/quarkus.properties
 
   keycloak-db:
