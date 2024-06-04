@@ -38,6 +38,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./config/realm.json:/opt/keycloak/data/import/realm.json
+      - ./config/themes:/opt/keycloak/themes/
       - ./extensions/access-token-mapper/target/access-token-mapper.jar:/opt/keycloak/providers/access-token-mapper.jar
       - ./extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar:/opt/keycloak/providers/monolith-users.jar
       - ./extensions/monolith-users/conf/quarkus.properties:/opt/keycloak/conf/quarkus.properties
