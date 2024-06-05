@@ -32,6 +32,7 @@ services:
       - MONOLITH_DB_USERNAME=root
       - MONOLITH_DB_PASSWORD=root
       - MONOLITH_DB_URL=jdbc:mysql://users-database:3306/monolith?isReadOnly=true
+      - PORTAL_HERO_SECRET=dSGJlZFLlIZN2ZCIXeW0lAWuq5bnzxHI
     depends_on:
       - users-database
       - keycloak-db

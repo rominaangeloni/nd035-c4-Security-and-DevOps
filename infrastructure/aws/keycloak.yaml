@@ -77,6 +77,17 @@ Resources:
         PasswordLength: 30
         ExcludeCharacters: '"@/\'
 
+  KeycloakClientSecretSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client-secrets"
+      Description: Secrets for the Keycloak's client-secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{}'
+        GenerateStringKey: "portal-hero"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     DependsOn:
@@ -100,7 +111,7 @@ Resources:
           EntryPoint:
               - sh
               - "-c"
-              - /opt/keycloak/bin/kc.sh start
+              - /opt/keycloak/bin/kc.sh start --import-realm
           Environment:
             - Name: KC_HTTP_PORT
               Value: 8080
@@ -138,6 +149,8 @@ Resources:
               ValueFrom: !Join [ ':', [ !Ref KeycloakMonolithDbSecrets, 'username::' ] ]
             - Name: MONOLITH_DB_PASSWORD
               ValueFrom: !Join [ ':', [ !Ref KeycloakMonolithDbSecrets, 'password::' ] ]
+            - Name: PORTAL_HERO_SECRET
+              ValueFrom: !Join [ ':', [ !Ref KeycloakClientSecretSecrets, 'portal-hero::' ] ]
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
 
   TaskRole:

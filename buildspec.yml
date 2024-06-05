@@ -28,6 +28,7 @@ phases:
       - mvn -f extensions/access-token-mapper/pom.xml clean install
       - mv extensions/access-token-mapper/target/access-token-mapper.jar infrastructure/docker/access-token-mapper.jar
       - mv extensions/monolith-users/conf/quarkus.properties infrastructure/docker
+      - mv config/realm.json infrastructure/docker
       - mv config/themes infrastructure/docker/
       # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
       - docker run -v "$PWD":/code -w /code ${ECR}/cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml
