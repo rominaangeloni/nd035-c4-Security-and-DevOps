@@ -1,6 +1,10 @@
 Description: "Keycloak database"
 
 Parameters:
+  Project:
+    Type: String
+    Default: iam
+    AllowedValues: [ iam ]
   Environment:
     Type: String
     Default: prod
@@ -9,6 +13,9 @@ Parameters:
     Type: String
     Default: iam-keycloak
     AllowedValues: [ iam-keycloak ]
+
+Conditions:
+  AlarmsEnabled: !Equals [ !Ref Environment, 'prod']
 
 Resources:
   DatabaseSecurityGroup:
@@ -63,6 +70,28 @@ Resources:
       MasterUsername: postgres
       DBClusterParameterGroupName: !Ref DatabaseClusterParameterGroup
       BackupRetentionPeriod: 7
+
+  ClusterConsumedCapacityAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmName: !Sub "${ServiceName}-${Environment}_database-capacity-consumption-near-maximum"
+      AlarmDescription: !Sub "${ServiceName} - we are running out of provisioned capacity (ACUs) for the database"
+      ActionsEnabled: true
+      AlarmActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      OKActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      Namespace: AWS/RDS
+      MetricName: ACUUtilization
+      Dimensions:
+        - Name: DBClusterIdentifier
+          Value: !Ref DatabaseCluster
+      Statistic: Maximum
+      EvaluationPeriods: 5
+      Period: 60
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 85
 
   DatabaseInstance:
     Type: AWS::RDS::DBInstance

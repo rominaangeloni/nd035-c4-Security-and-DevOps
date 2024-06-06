@@ -1,0 +1,40 @@
+Description: "Alarms topics for IAM"
+
+Parameters:
+  Project:
+    Type: String
+    Default: iam
+    AllowedValues: [ iam ]
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues: [ prod ]
+
+Conditions:
+  AlarmsEnabled: !Equals [ !Ref Environment, 'prod']
+
+Resources:
+  SoftAlarmsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${Project}-soft-alarms-${Environment}"
+
+  NotificationSlackChannelConfiguration:
+    Type: AWS::Chatbot::SlackChannelConfiguration
+    Condition: AlarmsEnabled
+    Properties:
+      ConfigurationName: !Sub ${Project}-alarms
+      IamRoleArn:
+        Fn::ImportValue: ChatBot-Role
+      SlackChannelId: 'C076QA45QCT'
+      SlackWorkspaceId:
+        Fn::ImportValue: ChatBot-Workspace
+      SnsTopicArns:
+        - !Ref SoftAlarmsTopic
+
+Outputs:
+  SoftAlarmTopicArn:
+    Description: Arn for the soft alarm SNS topic
+    Value: !Ref SoftAlarmsTopic
+    Export:
+      Name: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"

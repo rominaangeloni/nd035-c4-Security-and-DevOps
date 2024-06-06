@@ -68,4 +68,5 @@ do
   generate_configuration_from_template "pipeline" $env "deployment"
   generate_configuration_from_template "keycloak" $env "service"
   generate_configuration_from_template "database" $env "database"
+  generate_configuration_from_template "alarms-topics" $env "service"
 done

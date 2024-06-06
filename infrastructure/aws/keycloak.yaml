@@ -43,6 +43,9 @@ Mappings:
     MaxCapacity:
       prod: 1
 
+Conditions:
+  AlarmsEnabled: !Equals [ !Ref Environment, 'prod']
+
 Resources:
   KeycloakAdminUserSecrets:
     Type: AWS::SecretsManager::Secret
@@ -404,6 +407,72 @@ Resources:
           AliasTarget:
             HostedZoneId: !GetAtt PublicLoadBalancer.CanonicalHostedZoneID
             DNSName: !GetAtt PublicLoadBalancer.DNSName
+
+  PublicAlbUnhealthyHostsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmName: !Sub "${ServiceName}-${Environment}_unhealthy-host"
+      AlarmDescription: !Sub "${ServiceName} - at leas one unhealthy host has been detected"
+      ActionsEnabled: true
+      AlarmActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      OKActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      Namespace: AWS/ApplicationELB
+      MetricName: UnHealthyHostCount
+      Dimensions:
+        - Name: LoadBalancer
+          Value: !Ref PublicLoadBalancer
+        - Name: TargetGroup
+          Value: !Ref PublicTargetGroup
+      Statistic: Maximum
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 0
+      Period: 60
+      EvaluationPeriods: 1
+
+  PublicAlb5xxRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmName: !Sub "${ServiceName}-${Environment}_5xx-rate-too-high-on-public-alb"
+      AlarmDescription: !Sub "${ServiceName} - too high 5xx rate detected on the public ALB"
+      ActionsEnabled: true
+      AlarmActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      OKActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      Metrics:
+        - Id: requests
+          MetricStat:
+            Metric:
+              Namespace: AWS/ApplicationELB
+              MetricName: RequestCount
+              Dimensions:
+                - Name: LoadBalancer
+                  Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
+            Period: 60
+            Stat: Sum
+          ReturnData: False
+        - Id: errors
+          MetricStat:
+            Metric:
+              Namespace: AWS/ApplicationELB
+              MetricName: HTTPCode_Target_5XX_Count
+              Dimensions:
+                - Name: LoadBalancer
+                  Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
+            Period: 60
+            Stat: Sum
+          ReturnData: False
+        - Id: errorRate
+          Expression: errors / requests
+          Label: 5xxErrorRate
+          ReturnData: true
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 0.1
+      EvaluationPeriods: 5
 
   KeycloakDatabaseSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress

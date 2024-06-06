@@ -73,6 +73,24 @@ Resources:
                   }
         - Name: Infrastructure
           Actions:
+            - Name: AlarmsTopics
+              RunOrder: 1
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: "1"
+                Provider: CloudFormation
+              InputArtifacts: [Name: App]
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_NAMED_IAM
+                StackName: !Sub ${Project}-alarms-topics-${Environment}
+                RoleArn:
+                  Fn::ImportValue: manage-application-stack-role
+                TemplatePath: App::infrastructure/aws/alarms-topics.yaml
+                TemplateConfiguration: !Sub App::infrastructure/aws/alarms-topics_conf_${Environment}.json
+                ParameterOverrides: !Sub |
+                  { "Environment": "${Environment}" }
             - Name: KeycloakDatabase
               RunOrder: 1
               ActionTypeId:
