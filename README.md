@@ -93,11 +93,13 @@ Flow details:
    | code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))) |
    └─────────────────────────────────────────────────────────────────┘
    ```
-   - `nonce` - TODO
+   - `nonce` - The nonce parameter in OpenID Connect is crucial for associating a client session with the ID-Token 
+   - and it is used for mitigating replay attacks.
    - `redirect_uri` - the URI configured for the client in Keycloak 
-   - `response_mode` - TODO
-   - `response_type` - TODO
-   - `state` - TODO
+   - `response_mode` - It's an optional value that informs the Authorization Server of the mechanism to be used for 
+   returning Authorization Response parameters from the Authorization Endpoint.
+   - `response_type` - For the Authorization Code grant, use `response_type=code` to include the authorization code.
+   - `state` - An optional opaque value that is used for preventing cross-site request forgery. We recommend using it.
    - `client_id` - the ID of the client configured in Keycloak
    - `code_challenge` - the computed code challenge
    - `code_challenge_method` - the hashing method of the code challenge
@@ -113,8 +115,9 @@ Flow details:
    iss: http://localhost:9090/realms/wallapop-connect
    code: 0d40629c-89f8-4eca-ba36-35ef81682e67.9c296d6e-1353-43ab-91ec-d8df10532938.ffd2a2ce-d2b7-4ebd-ac3a-a3f2a6a96a46
    ```
-   - `state` - TODO
-   - `session_state` - TODO
+   - `state` - An opaque value that is used for preventing cross-site request forgery.
+   - `session_state` - A string that represents the End-User's login state. This is REQUIRED if session management 
+   is supported.
    - `iss` - issuer of the authorization code (in this case, Keycloak)
    - `code` - the authorization code
 8. The seller's browser redirects to Portal Hero
