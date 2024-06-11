@@ -318,14 +318,9 @@ Resources:
       SecurityGroupIngress:
         - FromPort: 443
           IpProtocol: tcp
-          CidrIp: 54.73.44.58/32
+          CidrIp: 0.0.0.0/0
           ToPort: 443
-          Description: Allows access from VPN public IP
-        - FromPort: 443
-          IpProtocol: tcp
-          CidrIp: 52.18.252.164/32
-          ToPort: 443
-          Description: Allows access from VPN public IP
+          Description: Allows all traffic from internet
 
   PublicLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
