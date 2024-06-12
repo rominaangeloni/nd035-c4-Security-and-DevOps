@@ -668,7 +668,8 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "${PORTAL_HERO_SECRET}",
       "redirectUris": [
-        "http://localhost:9876/callback"
+        "http://localhost:9876/callback",
+        "https://dashboard.portalhero.pro/wallapop_consent"
       ],
       "webOrigins": [
         "+"
