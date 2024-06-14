@@ -669,6 +669,8 @@
       "secret": "${PORTAL_HERO_SECRET}",
       "redirectUris": [
         "http://localhost:9876/callback",
+        "http://host.docker.internal:9876/callback",
+        "http://172.17.0.1:9876/callback",
         "https://dashboard.portalhero.pro/wallapop_consent"
       ],
       "webOrigins": [

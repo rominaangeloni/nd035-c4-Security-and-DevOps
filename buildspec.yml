@@ -13,7 +13,7 @@ phases:
       java: corretto17
   pre_build:
     commands:
-      - $(aws ecr get-login --no-include-email --region eu-west-1)
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR
       - GIT_COMMIT=$CODEBUILD_RESOLVED_SOURCE_VERSION
       - GIT_BRANCH=$(git branch --format='%(refname:lstrip=-1) %(objectname)' | grep -E -v '(no branch|detached at)' | grep $GIT_COMMIT | head -n1 | cut -f1 -d' ')
       - GIT_BRANCH_NORMALIZED=$(echo $GIT_BRANCH | sed 's/\//-/g')
@@ -23,18 +23,28 @@ phases:
       - echo "GIT_BRANCH => "$GIT_BRANCH
   build:
     commands:
+      # Keycloak extensions
       - mvn -f extensions/monolith-users/pom.xml clean install
-      - mv extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar infrastructure/docker/monolith-users.jar
+      - cp extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar infrastructure/docker/monolith-users.jar
       - mvn -f extensions/access-token-mapper/pom.xml clean install
-      - mv extensions/access-token-mapper/target/access-token-mapper.jar infrastructure/docker/access-token-mapper.jar
-      - mv extensions/monolith-users/conf/quarkus.properties infrastructure/docker
-      - mv config/realm.json infrastructure/docker
-      - mv config/themes infrastructure/docker/
+      - cp extensions/access-token-mapper/target/access-token-mapper.jar infrastructure/docker/access-token-mapper.jar
+      - cp extensions/monolith-users/conf/quarkus.properties infrastructure/docker
+      - cp config/realm.json infrastructure/docker
+      - cp -r config/themes infrastructure/docker
+
+      # Keycloak tests
+      - docker-compose up -d # TODO: try to use ECR
+      - ./infrastructure/buildspec/await_keycloak.sh
+      - docker container ls -a
+      - ./keycloak/tests/gradlew -p keycloak/tests --info --full-stacktrace --warning-mode all clean build --console=plain --no-watch-fs
+
       # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
       - docker run -v "$PWD":/code -w /code ${ECR}/cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml
       - docker build -f infrastructure/docker/Dockerfile -t ${SERVICE}:current --build-arg ECR=${ECR} .
   post_build:
     commands:
+      - docker-compose logs
+
       # Docker Images
       - RELEASE_NAME=${GIT_BRANCH_NORMALIZED}
       - |
@@ -60,4 +70,17 @@ phases:
             ;;
           *)
             ;;
-        esac  
+        esac
+
+reports:
+  tests:
+    files:
+      - "**/*"
+    base-directory: keycloak/tests/build/test-results/test
+    file-format: JunitXml
+
+cache:
+  paths:
+    - '~/.m2/**/*'
+    - '~/.gradle/wrapper/**/*'
+    - '~/.gradle/caches/**/*'

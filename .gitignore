@@ -10,3 +10,7 @@
 
 #target
 *target/
+
+# Gradle
+.gradle/
+build/
