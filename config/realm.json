@@ -1393,7 +1393,8 @@
   "accountTheme": "",
   "adminTheme": "",
   "emailTheme": "",
-  "eventsEnabled": false,
+  "eventsEnabled": true,
+  "eventsExpiration": 1296000,
   "eventsListeners": [
     "jboss-logging"
   ],
