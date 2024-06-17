@@ -128,7 +128,7 @@ Resources:
               Value: true
             - Name: KC_LOG_LEVEL
               # TODO: ensure the DEBG is not harming ur or delete it before going live
-              Value: INFO,org.keycloak.events:DEBUG
+              Value: DEBUG,org.keycloak.events:DEBUG
             - Name: KC_HEALTH_ENABLED
               Value: true
             - Name: KC_DB
