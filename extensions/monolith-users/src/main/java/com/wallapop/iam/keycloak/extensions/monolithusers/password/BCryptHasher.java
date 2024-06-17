@@ -9,7 +9,7 @@ public class BCryptHasher {
         return BCrypt.checkpw(clearTextPassword.getValue(), hashedPassword.getValue());
     }
 
-    public static String encrypt(String plainPsw) {
-        return new BCryptPasswordEncoder().encode(plainPsw);
+    public static String encrypt(String clearTextPassword, String hashed) {
+        return org.springframework.security.crypto.bcrypt.BCrypt.hashpw(clearTextPassword, hashed);
     }
 }

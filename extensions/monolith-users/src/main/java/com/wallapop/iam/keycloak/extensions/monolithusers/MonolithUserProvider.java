@@ -112,7 +112,7 @@ public class MonolithUserProvider implements UserStorageProvider,
         //TODO delete after debugging
         logger.debug("The psw for user: " + user.getEmail() +" is " + cred.getValue());
         logger.debug("The psw in the database for user" + user.getEmail() + " is: " + password);
-        logger.debug("The hashed psw of the user " + user.getEmail() + " is: " + BCryptHasher.encrypt(password));
+        logger.debug("The hashed psw of the user " + user.getEmail() + " is: " + BCryptHasher.encrypt(cred.getValue(), password));
         Boolean isValid = PasswordValidator.sameHash(new ClearTextPassword(cred.getValue()), new HashedPassword(password), logger);
         if (isValid) {
             logger.info("User validation success with monolith database "  + user.getEmail());
