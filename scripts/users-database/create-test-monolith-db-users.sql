@@ -67,7 +67,7 @@ INSERT INTO usr_usr (usrId, firstName, lastname, userEmailAddress, password_) VA
 (2, 'Bob', 'Sponge', 'bob@example.com', '$2a$10$mjHMYfmXZ179VX/kjwmubuoM3nH286msx0Jl2RKGNtkPxvZf1RTUC'),
 (3, 'Kurt', 'Cobain', 'kurt@example.com', '$2a$10$mjHMYfmXZ179VX/kjwmubuoM3nH286msx0Jl2RKGNtkPxvZf1RTUC'),
 (4, 'Patrick', 'Store', 'patrick@example.com', '$2a$10$mjHMYfmXZ179VX/kjwmubuoM3nH286msx0Jl2RKGNtkPxvZf1RTUC');
--- the password is '12345678' for all users to simplify
+-- this password does not work because the valid one is in auth db
 
 INSERT INTO user_perks (perk_id, user_id, type, category_id, period_end) VALUES
 (10, 1, 'USER_PROFILE_FEATURED', 100, FROM_UNIXTIME(1894956553, '%Y-%m-%d %H:%i:%s')),

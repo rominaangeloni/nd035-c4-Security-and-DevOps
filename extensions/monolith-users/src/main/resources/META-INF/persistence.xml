@@ -16,4 +16,15 @@
             <property name="hibernate.temp.use_jdbc_metadata_defaults" value="false" />
         </properties>
     </persistence-unit>
+    <persistence-unit name="user-store-auth" transaction-type="JTA">
+        <class>com.wallapop.iam.keycloak.extensions.monolithusers.AuthUser</class>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
+            <property name="hibernate.connection.datasource" value="user-store-auth" />
+            <property name="jakarta.persistence.transactionType" value="JTA" />
+            <property name="hibernate.hbm2ddl.auto" value="none" />
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.temp.use_jdbc_metadata_defaults" value="false" />
+        </properties>
+    </persistence-unit>
 </persistence>

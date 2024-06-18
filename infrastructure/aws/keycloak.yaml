@@ -151,7 +151,7 @@ Resources:
             - Name: MONOLITH_DB_URL
               Value: jdbc:mysql://monolith-primary.chyozymq8sle.eu-west-1.rds.amazonaws.com:3306/shnmpro2?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&autoReconnect=true&useSSL=false&isReadOnly=true
             - Name: AUTH_DB_URL
-              Value: jdbc:mysql://auth-primary.chyozymq8sle.eu-west-1.rds.amazonaws.com:3306?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&autoReconnect=true&useSSL=false&isReadOnly=true
+              Value: jdbc:mysql://auth-primary.chyozymq8sle.eu-west-1.rds.amazonaws.com:3306/auth?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&autoReconnect=true&useSSL=false&isReadOnly=true
           Secrets:
             - Name: KEYCLOAK_ADMIN
               ValueFrom: !Join [ ':', [ !Ref KeycloakAdminUserSecrets, 'username::' ]]

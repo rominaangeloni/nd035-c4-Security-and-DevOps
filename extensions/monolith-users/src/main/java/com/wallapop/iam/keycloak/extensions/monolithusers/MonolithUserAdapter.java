@@ -25,7 +25,7 @@ public class MonolithUserAdapter extends AbstractUserAdapterFederatedStorage {
     }
 
     public String getPassword() {
-        return entity.getPassword();
+        return entity.getAuthPassword();
     }
 
     public void setPassword(String password) {

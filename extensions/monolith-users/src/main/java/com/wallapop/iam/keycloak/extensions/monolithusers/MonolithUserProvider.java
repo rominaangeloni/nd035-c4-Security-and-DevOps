@@ -33,7 +33,9 @@ public class MonolithUserProvider implements UserStorageProvider,
     private static final Logger logger = LoggerFactory.getLogger(MonolithUserProvider.class);
     public static final String PASSWORD_CACHE_KEY = MonolithUserAdapter.class.getName() + ".password";
 
-    protected EntityManager em;
+    protected EntityManager entityManagerMonolith;
+
+    protected EntityManager entityManagerAuth;
 
     protected ComponentModel model;
     protected KeycloakSession session;
@@ -41,7 +43,8 @@ public class MonolithUserProvider implements UserStorageProvider,
     MonolithUserProvider(KeycloakSession session, ComponentModel model) {
         this.session = session;
         this.model = model;
-        em = this.session.getProvider(JpaConnectionProvider.class, "user-store").getEntityManager();
+        entityManagerMonolith = this.session.getProvider(JpaConnectionProvider.class, "user-store").getEntityManager();
+        entityManagerAuth = this.session.getProvider(JpaConnectionProvider.class, "user-store-auth").getEntityManager();
     }
 
     @Override
@@ -67,7 +70,7 @@ public class MonolithUserProvider implements UserStorageProvider,
     public UserModel getUserById(RealmModel realm, String id) {
         logger.info("getUserById: " + id);
         String       persistenceId = StorageId.externalId(id);
-        MonolithUser entity        = em.find(MonolithUser.class, persistenceId);
+        MonolithUser entity        = entityManagerMonolith.find(MonolithUser.class, persistenceId);
         if (entity == null) {
             logger.info("could not find user by id: " + id);
             return null;
@@ -83,12 +86,21 @@ public class MonolithUserProvider implements UserStorageProvider,
 
     @Override
     public UserModel getUserByEmail(RealmModel realm, String email) {
-        TypedQuery<MonolithUser> query = em.createNamedQuery("getProUserByEmail", MonolithUser.class);
+        TypedQuery<MonolithUser> query = entityManagerMonolith.createNamedQuery("getProUserByEmail", MonolithUser.class);
         query.setParameter("email", email);
         List<MonolithUser> result = query.getResultList();
         if (result.isEmpty()) return null;
-        logger.info("User found");
-        return new MonolithUserAdapter(session, realm, model, result.get(0));
+        logger.info("User found in Monolith " + email);
+        TypedQuery<AuthUser> queryAuth = entityManagerAuth.createNamedQuery("getUserByEmail", AuthUser.class);
+        queryAuth.setParameter("email", email);
+        List<AuthUser> resultAuth = queryAuth.getResultList();
+        if (resultAuth.isEmpty()) return null;
+        logger.info("User found in Auth " + email);
+
+        MonolithUser user = result.get(0);
+        user.setAuthPassword(resultAuth.get(0).getPassword());
+
+        return new MonolithUserAdapter(session, realm, model, user);
     }
 
     @Override
@@ -109,10 +121,6 @@ public class MonolithUserProvider implements UserStorageProvider,
 
         String password = getPassword(user);
 
-        //TODO delete after debugging
-        logger.debug("The psw for user: " + user.getEmail() +" is " + cred.getValue());
-        logger.debug("The psw in the database for user" + user.getEmail() + " is: " + password);
-        logger.debug("The hashed psw of the user " + user.getEmail() + " is: " + BCryptHasher.encrypt(cred.getValue(), password));
         Boolean isValid = PasswordValidator.sameHash(new ClearTextPassword(cred.getValue()), new HashedPassword(password), logger);
         if (isValid) {
             logger.info("User validation success with monolith database "  + user.getEmail());

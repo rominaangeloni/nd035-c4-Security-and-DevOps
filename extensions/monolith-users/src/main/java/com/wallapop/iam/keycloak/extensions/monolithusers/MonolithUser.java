@@ -7,6 +7,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import java.util.Set;
 
@@ -31,6 +32,9 @@ public class MonolithUser {
     private String email;
     @Column(name = "password_")
     private String password;
+
+    @Transient
+    private String authPassword;
 
     @OneToMany(mappedBy = "user") // Define the relationship with UserPerks
     private Set<MonolithUserPerk> userPerks;
@@ -81,5 +85,13 @@ public class MonolithUser {
 
     public void setUserPerks(Set<MonolithUserPerk> userPerks) {
         this.userPerks = userPerks;
+    }
+
+    public String getAuthPassword() {
+        return authPassword;
+    }
+
+    public void setAuthPassword(String authPassword) {
+        this.authPassword = authPassword;
     }
 }
