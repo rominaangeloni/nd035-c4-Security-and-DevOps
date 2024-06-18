@@ -15,24 +15,22 @@ repositories {
 }
 
 dependencies {
+    val kotlinCoroutines = "1.8.1"
+    val logback = "1.5.6"
     val junit = "5.10.2"
+    val assertj = "3.25.1"
     val selenium = "4.21.0"
     val nimbusdsOauthClient = "11.12"
-    val keycloakAdminClient = "25.0.0"
     val wiremock = "3.6.0"
-    val ktor = "2.3.11"
 
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutines")
+    testImplementation("ch.qos.logback:logback-classic:$logback")
     testImplementation(platform("org.junit:junit-bom:$junit"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.assertj:assertj-core:$assertj")
     testImplementation("org.wiremock:wiremock:$wiremock")
     testImplementation("org.seleniumhq.selenium:selenium-java:$selenium")
     testImplementation("com.nimbusds:oauth2-oidc-sdk:$nimbusdsOauthClient")
-    testImplementation("org.keycloak:keycloak-admin-client:$keycloakAdminClient")
-    testImplementation("io.ktor:ktor-client-core:$ktor")
-    testImplementation("io.ktor:ktor-client-cio:$ktor")
-    testImplementation("io.ktor:ktor-client-auth:$ktor")
-    testImplementation("io.ktor:ktor-client-content-negotiation:$ktor")
-    testImplementation("io.ktor:ktor-serialization-jackson:$ktor")
 }
 
 tasks.test {
