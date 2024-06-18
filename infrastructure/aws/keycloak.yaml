@@ -69,6 +69,17 @@ Resources:
         PasswordLength: 30
         ExcludeCharacters: '"@/\'
 
+  KeycloakAuthDatabaseUserSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/rds/auth/${ServiceName}"
+      Description: Secrets for Auth RDS Keycloak credentials
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "keycloak"}'
+        GenerateStringKey: "password"
+        PasswordLength: 30
+        ExcludeCharacters: '"@/\'
+
   KeycloakMonolithDbSecrets:
     Type: AWS::SecretsManager::Secret
     Properties:
