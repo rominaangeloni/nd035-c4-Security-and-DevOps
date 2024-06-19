@@ -122,6 +122,7 @@ Resources:
           Essential: true
           PortMappings:
             - ContainerPort: 8080
+            - ContainerPort: 9000
           EntryPoint:
               - sh
               - "-c"
@@ -287,7 +288,7 @@ Resources:
       Protocol: HTTP
       Matcher:
         HttpCode: '200-299'
-      HealthCheckPort: '8080'
+      HealthCheckPort: '9000'
       HealthCheckIntervalSeconds: 30
       HealthCheckPath: '/health'
       HealthCheckProtocol: HTTP

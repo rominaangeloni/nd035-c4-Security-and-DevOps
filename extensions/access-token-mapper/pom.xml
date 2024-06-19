@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-parent</artifactId>
-    <version>24.0.4</version>
+    <version>25.0.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>access-token-mapper</artifactId>
@@ -11,7 +11,7 @@
   <description>Wallapop Custom Mapper Provider</description>
 
   <properties>
-    <keycloak>24.0.4</keycloak>
+    <keycloak>25.0.0</keycloak>
     <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
@@ -32,13 +32,13 @@
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-server-spi-private</artifactId>
       <scope>provided</scope>
-      <version>24.0.4</version>
+      <version>${keycloak}</version>
     </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-services</artifactId>
       <scope>provided</scope>
-      <version>24.0.4</version>
+      <version>${keycloak}</version>
     </dependency>
   </dependencies>
 

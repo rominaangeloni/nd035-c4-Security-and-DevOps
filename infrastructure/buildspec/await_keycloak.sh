@@ -1,6 +1,6 @@
 #!/bin/bash
 
-url="http://localhost:9090/health"
+url="http://localhost:9000/health"
 max_attempts=120
 attempt=1
 
