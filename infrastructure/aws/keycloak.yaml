@@ -131,7 +131,7 @@ Resources:
             - Name: KC_HTTP_PORT
               Value: 8080
             - Name: KC_HOSTNAME
-              Value: !Sub "${PublicHostName}"
+              Value: !Sub "https://${PublicHostName}"
             - Name: KC_HOSTNAME_ADMIN
               Value: !Sub "https://${PrivateHostName}"
             - Name: KC_PROXY_HEADERS
@@ -140,7 +140,7 @@ Resources:
               Value: true
             - Name: KC_LOG_LEVEL
               # TODO: ensure the DEBG is not harming ur or delete it before going live
-              Value: DEBUG,org.keycloak.events:DEBUG
+              Value: INFO,org.keycloak.events:DEBUG
             - Name: KC_HEALTH_ENABLED
               Value: true
             - Name: KC_DB
@@ -252,11 +252,23 @@ Resources:
               !Sub ecs-${Environment}-clusterALB-SG
           ToPort: 8080
           Description: 'Allow access from ALB'
+        - FromPort: 9000
+          IpProtocol: tcp
+          SourceSecurityGroupId:
+            Fn::ImportValue:
+              !Sub ecs-${Environment}-clusterALB-SG
+          ToPort: 9000
+          Description: 'Allow access from ALB to healthcheck port'
         - FromPort: 8080
           IpProtocol: tcp
           SourceSecurityGroupId: !Ref PublicLoadBalancerSecurityGroup
           ToPort: 8080
           Description: 'Allow access from public Security Group'
+        - FromPort: 9000
+          IpProtocol: tcp
+          SourceSecurityGroupId: !Ref PublicLoadBalancerSecurityGroup
+          ToPort: 9000
+          Description: 'Allow access from public Security Group to healthcheck port'
 
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -366,7 +378,7 @@ Resources:
       Protocol: HTTP
       Matcher:
         HttpCode: '200-299'
-      HealthCheckPort: '8080'
+      HealthCheckPort: '9000'
       HealthCheckIntervalSeconds: 30
       HealthCheckPath: '/health'
       HealthCheckProtocol: HTTP
