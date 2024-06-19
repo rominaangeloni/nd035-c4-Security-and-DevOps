@@ -132,8 +132,6 @@ Resources:
               Value: 8080
             - Name: KC_HOSTNAME
               Value: !Sub "https://${PublicHostName}"
-            - Name: KC_HOSTNAME_ADMIN
-              Value: !Sub "https://${PrivateHostName}"
             - Name: KC_PROXY_HEADERS
               Value: xforwarded
             - Name: KC_HTTP_ENABLED
@@ -396,30 +394,13 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
-        - Type: fixed-response
-          FixedResponseConfig:
-            ContentType: text/plain
-            MessageBody: Forbidden
-            StatusCode: 403
+        - Type: forward
+          TargetGroupArn: !Ref PublicTargetGroup
       LoadBalancerArn: !Ref PublicLoadBalancer
       Port: 443
       Protocol: HTTPS
       Certificates:
         - CertificateArn: !Ref ArnCertificate
-
-  PublicListenerHTTPSRules:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Priority: 1
-      Actions:
-        - Type: forward
-          TargetGroupArn: !Ref PublicTargetGroup
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - "/realms/*"
-            - "/resources/*"
-      ListenerArn: !Ref PublicListenerHTTPS
 
   PublicDnsAlias:
     Type: AWS::Route53::RecordSetGroup
