@@ -133,7 +133,7 @@ Resources:
             - Name: KC_HOSTNAME
               Value: !Sub "${PublicHostName}"
             - Name: KC_HOSTNAME_ADMIN
-              Value: !Sub "${PrivateHostName}"
+              Value: !Sub "https://${PrivateHostName}"
             - Name: KC_PROXY_HEADERS
               Value: xforwarded
             - Name: KC_HTTP_ENABLED
