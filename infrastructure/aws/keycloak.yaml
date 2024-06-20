@@ -136,8 +136,14 @@ Resources:
               Value: xforwarded
             - Name: KC_HTTP_ENABLED
               Value: true
+            - Name: KC_LOG
+              Value: syslog
             - Name: KC_LOG_LEVEL
               Value: INFO,org.keycloak.events:DEBUG
+            - Name: KC_LOG_SYSLOG_OUTPUT
+              Value: json
+            - Name: KC_LOG_SYSLOG_ENDPOINT
+              Value: !Sub "logging-platform-collector.wallapop.${Environment}:5140"
             - Name: KC_HEALTH_ENABLED
               Value: true
             - Name: KC_FEATURES
