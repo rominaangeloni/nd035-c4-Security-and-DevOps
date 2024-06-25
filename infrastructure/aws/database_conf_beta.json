@@ -1,0 +1,6 @@
+{
+  "Parameters": {
+    "KmsKeyId": "arn:aws:kms:eu-west-1:139222918132:key/f60e136e-7a9c-4a09-80c8-ac4a79ec6b19",
+    "MasterKmsKeyId": "arn:aws:kms:eu-west-1:139222918132:key/2ff6ddda-2a24-43d3-a59d-2091f11894dc"
+  }
+}

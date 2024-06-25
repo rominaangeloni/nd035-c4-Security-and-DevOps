@@ -5,8 +5,8 @@ Parameters:
     AllowedValues: [iam]
   Environment:
     Type: String
-    Default: prod
-    AllowedValues: [prod]
+    Default: beta
+    AllowedValues: [ beta, prod ]
   SourceS3Bucket:
     Type: String
     Default: wallapop-trigger-link-cicd
@@ -16,10 +16,14 @@ Parameters:
     Default: codebuild-cache-wallapop
     AllowedValues: [codebuild-cache-wallapop]
 
+Conditions:
+  IsProdEnvironment: !Equals [!Ref Environment, 'prod']
+
 Mappings:
   Source:
     S3Key:
       prod: iam/prod.zip
+      beta: iam/beta.zip
 
 Resources:
   Pipeline:
@@ -73,24 +77,27 @@ Resources:
                   }
         - Name: Infrastructure
           Actions:
-            - Name: AlarmsTopics
-              RunOrder: 1
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Version: "1"
-                Provider: CloudFormation
-              InputArtifacts: [Name: App]
-              Configuration:
-                ActionMode: CREATE_UPDATE
-                Capabilities: CAPABILITY_NAMED_IAM
-                StackName: !Sub ${Project}-alarms-topics-${Environment}
-                RoleArn:
-                  Fn::ImportValue: manage-application-stack-role
-                TemplatePath: App::infrastructure/aws/alarms-topics.yaml
-                TemplateConfiguration: !Sub App::infrastructure/aws/alarms-topics_conf_${Environment}.json
-                ParameterOverrides: !Sub |
-                  { "Environment": "${Environment}" }
+            - !If
+              - IsProdEnvironment
+              - Name: AlarmsTopics
+                RunOrder: 1
+                ActionTypeId:
+                  Category: Deploy
+                  Owner: AWS
+                  Version: "1"
+                  Provider: CloudFormation
+                InputArtifacts: [Name: App]
+                Configuration:
+                  ActionMode: CREATE_UPDATE
+                  Capabilities: CAPABILITY_NAMED_IAM
+                  StackName: !Sub ${Project}-alarms-topics-${Environment}
+                  RoleArn:
+                    Fn::ImportValue: manage-application-stack-role
+                  TemplatePath: App::infrastructure/aws/alarms-topics.yaml
+                  TemplateConfiguration: !Sub App::infrastructure/aws/alarms-topics_conf_${Environment}.json
+                  ParameterOverrides: !Sub |
+                    { "Environment": "${Environment}" }
+              - !Ref AWS::NoValue
             - Name: KeycloakDatabase
               RunOrder: 1
               ActionTypeId:

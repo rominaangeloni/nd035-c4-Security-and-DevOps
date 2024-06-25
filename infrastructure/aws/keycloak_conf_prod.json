@@ -1,0 +1,10 @@
+{
+  "Parameters": {
+    "PrivateHostName": "private-iam.wallapop.com",
+    "PublicHostName": "iam.wallapop.com",
+    "ArnCertificate": "arn:aws:acm:eu-west-1:745640521341:certificate/6086ec3f-b0df-4831-b254-f7b96bf23b93",
+    "KeycloakDbUrl": "jdbc:postgresql://iam-keycloak.cluster-chyozymq8sle.eu-west-1.rds.amazonaws.com:5432/keycloak",
+    "MonolithDbUrl": "jdbc:mysql://monolith-primary.chyozymq8sle.eu-west-1.rds.amazonaws.com:3306/shnmpro2?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&autoReconnect=true&useSSL=false&isReadOnly=true",
+    "AuthDbUrl": "jdbc:mysql://auth-primary.chyozymq8sle.eu-west-1.rds.amazonaws.com:3306/auth?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&autoReconnect=true&useSSL=false&isReadOnly=true"
+  }
+}

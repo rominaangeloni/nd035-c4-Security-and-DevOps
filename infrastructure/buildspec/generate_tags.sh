@@ -66,7 +66,7 @@ populate_variables() {
 for env in "beta" "prod"
 do
   generate_configuration_from_template "pipeline" $env "deployment"
-  generate_configuration_from_template "keycloak" $env "service"
-  generate_configuration_from_template "database" $env "database"
+  generate_configuration "keycloak" $env "service"
+  generate_configuration "database" $env "database"
   generate_configuration_from_template "alarms-topics" $env "service"
 done

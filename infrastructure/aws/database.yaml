@@ -4,15 +4,19 @@ Parameters:
   Project:
     Type: String
     Default: iam
-    AllowedValues: [ iam ]
+    AllowedValues: [iam]
   Environment:
     Type: String
-    Default: prod
-    AllowedValues: [ prod ]
+    Default: beta
+    AllowedValues: [beta, prod]
   ServiceName:
     Type: String
     Default: iam-keycloak
     AllowedValues: [ iam-keycloak ]
+  KmsKeyId:
+    Type: String
+  MasterKmsKeyId:
+    Type: String
 
 Conditions:
   AlarmsEnabled: !Equals [ !Ref Environment, 'prod']
@@ -57,16 +61,17 @@ Resources:
       Engine: aurora-postgresql
       EngineVersion: 15.4
       StorageType: aurora
-      KmsKeyId: arn:aws:kms:eu-west-1:745640521341:key/a0c441a6-4d1d-4cb0-801f-45458c479b81
+      KmsKeyId: !Sub "${KmsKeyId}"
       ServerlessV2ScalingConfiguration:
         MinCapacity: 1
         MaxCapacity: 2
       PreferredMaintenanceWindow: wed:00:43-wed:01:13
-      DBSubnetGroupName: core-prod-privatedbsubnetgroup-tosshypm7sdt
+      DBSubnetGroupName:
+        Fn::ImportValue: !Sub "${Environment}-rds-private-subnetgroup"
       DeletionProtection: true
       ManageMasterUserPassword: true
       MasterUserSecret:
-        KmsKeyId: arn:aws:kms:eu-west-1:745640521341:key/3b2eab83-99d8-4133-9a1f-8f86b1e2fc39
+        KmsKeyId: !Sub "${MasterKmsKeyId}"
       MasterUsername: postgres
       DBClusterParameterGroupName: !Ref DatabaseClusterParameterGroup
       BackupRetentionPeriod: 7
@@ -100,7 +105,7 @@ Resources:
       DBParameterGroupName: default.aurora-postgresql15
       Engine: aurora-postgresql
       MultiAZ: false
-      PerformanceInsightsKMSKeyId: arn:aws:kms:eu-west-1:745640521341:key/a0c441a6-4d1d-4cb0-801f-45458c479b81
+      PerformanceInsightsKMSKeyId: !Sub "${KmsKeyId}"
       LicenseModel: postgresql-license
       DBInstanceClass: db.serverless
       PerformanceInsightsRetentionPeriod: 7
