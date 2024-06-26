@@ -143,7 +143,7 @@ Resources:
             - Name: KC_HTTP_ENABLED
               Value: true
             - Name: KC_LOG
-              Value: console, syslog
+              Value: console,syslog
             - Name: KC_LOG_LEVEL
               Value: INFO,org.keycloak.events:DEBUG
             - Name: KC_LOG_SYSLOG_OUTPUT
