@@ -4,11 +4,11 @@ Parameters:
   Project:
     Type: String
     Default: iam
-    AllowedValues: [iam]
+    AllowedValues: [ iam ]
   Environment:
     Type: String
     Default: beta
-    AllowedValues: [beta, prod]
+    AllowedValues: [ beta, prod ]
   ServiceName:
     Type: String
     Default: iam-keycloak
@@ -17,33 +17,34 @@ Parameters:
     Type: String
   MasterKmsKeyId:
     Type: String
+  DbInstanceClass:
+    Type: String
+    Default: db.serverless
+    AllowedValues: [ db.serverless ]
+  DbParameterGroupName:
+    Type: String
+    Default: default.aurora-postgresql15
+    AllowedValues: [ default.aurora-postgresql15 ]
+  OptionGroupName:
+    Type: String
+    Default: default:aurora-postgresql-15
+    AllowedValues: [ default:aurora-postgresql-15 ]
+  LicenseModel:
+    Type: String
+    Default: postgresql-license
+    AllowedValues: [ postgresql-license ]
+  CaCertificateIdentifier:
+    Type: String
+    Default: rds-ca-rsa2048-g1
+    AllowedValues: [ rds-ca-rsa2048-g1 ]
+  ReplicationLagThreshold:
+    Type: Number
+    Default: 30000 # 30 seconds
 
 Conditions:
   AlarmsEnabled: !Equals [ !Ref Environment, 'prod']
 
 Resources:
-  DatabaseSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: !Sub "${ServiceName}-database-${Environment}"
-      GroupDescription: !Sub "Security group for ${ServiceName}"
-      VpcId:
-        Fn::ImportValue: !Sub "${Environment}-vpc"
-      SecurityGroupIngress:
-        - FromPort: 5432
-          IpProtocol: tcp
-          SourceSecurityGroupId:
-            Fn::ImportValue: !Sub "VPN-${Environment}-sg"
-          ToPort: 5432
-          Description: Allows access from VPN
-
-  DatabaseClusterParameterGroup:
-    Type: AWS::RDS::DBClusterParameterGroup
-    Properties:
-      Description: !Sub "Custom parameter group for ${ServiceName} database"
-      Family: aurora-postgresql15
-      Parameters:
-        max_prepared_transactions: "400"
 
   DatabaseCluster:
     Type: AWS::RDS::DBCluster
@@ -76,6 +77,69 @@ Resources:
       DBClusterParameterGroupName: !Ref DatabaseClusterParameterGroup
       BackupRetentionPeriod: 7
 
+  DatabaseClusterParameterGroup:
+    Type: AWS::RDS::DBClusterParameterGroup
+    Properties:
+      Description: !Sub "Custom parameter group for ${ServiceName} database"
+      Family: aurora-postgresql15
+      Parameters:
+        max_prepared_transactions: "400"
+
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "${ServiceName}-database-${Environment}"
+      GroupDescription: !Sub "Security group for ${ServiceName}"
+      VpcId:
+        Fn::ImportValue: !Sub "${Environment}-vpc"
+      SecurityGroupIngress:
+        - FromPort: 5432
+          IpProtocol: tcp
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub "VPN-${Environment}-sg"
+          ToPort: 5432
+          Description: Allows access from VPN
+
+  DatabaseInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBClusterIdentifier: !Ref DatabaseCluster
+      DBParameterGroupName: default.aurora-postgresql15
+      Engine: aurora-postgresql
+      PerformanceInsightsKMSKeyId: !Ref KmsKeyId
+      LicenseModel: !Ref LicenseModel
+      DBInstanceClass: !Ref DbInstanceClass
+      PerformanceInsightsRetentionPeriod: 7
+      OptionGroupName: !Ref OptionGroupName
+      PreferredMaintenanceWindow: sat:22:05-sat:22:35
+      EnablePerformanceInsights: true
+      AutoMinorVersionUpgrade: true
+      DBSubnetGroupName:
+        Fn::ImportValue: !Sub "${Environment}-rds-private-subnetgroup"
+      DBInstanceIdentifier: !Sub "${ServiceName}-primary"
+      CACertificateIdentifier: !Ref CaCertificateIdentifier
+      PubliclyAccessible: false
+
+  ReplicaInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Sub "${ServiceName}-replica-1"
+      Engine: aurora-postgresql
+      DBClusterIdentifier: !Ref DatabaseCluster
+      DBInstanceClass: !Ref DbInstanceClass
+      DBParameterGroupName: !Ref DbParameterGroupName
+      OptionGroupName: !Ref OptionGroupName
+      LicenseModel: !Ref LicenseModel
+      PerformanceInsightsKMSKeyId: !Ref KmsKeyId
+      PerformanceInsightsRetentionPeriod: 7
+      PreferredMaintenanceWindow: sun:22:05-sun:22:35
+      CACertificateIdentifier: !Ref CaCertificateIdentifier
+      AutoMinorVersionUpgrade: true
+      EnablePerformanceInsights: true
+      PubliclyAccessible: false
+      DBSubnetGroupName:
+        Fn::ImportValue: !Sub "${Environment}-rds-private-subnetgroup"
+
   ClusterConsumedCapacityAlarm:
     Type: AWS::CloudWatch::Alarm
     Condition: AlarmsEnabled
@@ -98,26 +162,26 @@ Resources:
       ComparisonOperator: GreaterThanThreshold
       Threshold: 85
 
-  DatabaseInstance:
-    Type: AWS::RDS::DBInstance
+  DatabaseReplicaLagTooHighAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
     Properties:
-      DBClusterIdentifier: !Ref DatabaseCluster
-      DBParameterGroupName: default.aurora-postgresql15
-      Engine: aurora-postgresql
-      MultiAZ: false
-      PerformanceInsightsKMSKeyId: !Sub "${KmsKeyId}"
-      LicenseModel: postgresql-license
-      DBInstanceClass: db.serverless
-      PerformanceInsightsRetentionPeriod: 7
-      OptionGroupName: default:aurora-postgresql-15
-      PreferredMaintenanceWindow: sat:22:05-sat:22:35
-      EnablePerformanceInsights: true
-      AutoMinorVersionUpgrade: true
-      DBSubnetGroupName:
-        Fn::ImportValue: !Sub "${Environment}-rds-private-subnetgroup"
-      DBInstanceIdentifier: !Sub "${ServiceName}-instance-1"
-      CACertificateIdentifier: rds-ca-rsa2048-g1
-      PubliclyAccessible: false
+      AlarmName: !Sub "${ServiceName}-${Environment}_database_replica-high-replication-lag"
+      AlarmDescription: !Sub '${ServiceName} - Replication lag over last 10 minutes higher than ${ReplicationLagThreshold} seconds'
+      MetricName: AuroraReplicaLag
+      Namespace: AWS/RDS
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 10
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: !Ref ReplicationLagThreshold
+      AlarmActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      OKActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      Dimensions:
+        - Name: DBClusterIdentifier
+          Value: !Ref DatabaseCluster
 
 Outputs:
   DatabaseSecurityGroup:
