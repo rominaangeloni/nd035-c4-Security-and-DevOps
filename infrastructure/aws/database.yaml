@@ -74,16 +74,7 @@ Resources:
       MasterUserSecret:
         KmsKeyId: !Sub "${MasterKmsKeyId}"
       MasterUsername: postgres
-      DBClusterParameterGroupName: !Ref DatabaseClusterParameterGroup
       BackupRetentionPeriod: 7
-
-  DatabaseClusterParameterGroup:
-    Type: AWS::RDS::DBClusterParameterGroup
-    Properties:
-      Description: !Sub "Custom parameter group for ${ServiceName} database"
-      Family: aurora-postgresql15
-      Parameters:
-        max_prepared_transactions: "400"
 
   DatabaseSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -104,7 +95,7 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       DBClusterIdentifier: !Ref DatabaseCluster
-      DBParameterGroupName: default.aurora-postgresql15
+      DBParameterGroupName: !Ref DbParameterGroupName
       Engine: aurora-postgresql
       PerformanceInsightsKMSKeyId: !Ref KmsKeyId
       LicenseModel: !Ref LicenseModel
