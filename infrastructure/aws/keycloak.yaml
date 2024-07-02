@@ -166,6 +166,8 @@ Resources:
               Value: !Sub "logging-platform-collector.wallapop.${Environment}:5140"
             - Name: KC_HEALTH_ENABLED
               Value: true
+            - Name: KC_FEATURES
+              Value: persistent-user-sessions
             - Name: KC_CACHE
               Value: ispn
             - Name: KC_CACHE_STACK
