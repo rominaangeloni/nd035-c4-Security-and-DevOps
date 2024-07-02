@@ -527,6 +527,7 @@ Resources:
       ComparisonOperator: GreaterThanThreshold
       Threshold: 0.1
       EvaluationPeriods: 5
+      TreatMissingData: "notBreaching"
 
   KeycloakDatabaseSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
