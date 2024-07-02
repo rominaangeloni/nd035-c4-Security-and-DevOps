@@ -108,7 +108,7 @@ Resources:
   InfinispanS3DiscoveryBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${InfinispanS3DiscoveryBucketName}"
+      BucketName: !Sub "${InfinispanS3DiscoveryBucketName}-${Environment}"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -171,7 +171,7 @@ Resources:
             - Name: KC_CACHE_STACK
               Value: ec2
             - Name: JAVA_TOOL_OPTIONS
-              Value: !Sub "-Djgroups.s3.region_name=${AWS::Region} -Djgroups.s3.bucket_name=${InfinispanS3DiscoveryBucketName}"
+              Value: !Sub "-Djgroups.s3.region_name=${AWS::Region} -Djgroups.s3.bucket_name=${InfinispanS3DiscoveryBucketName}-${Environment}"
             - Name: KC_DB
               Value: postgres
             - Name: KC_DB_SCHEMA
