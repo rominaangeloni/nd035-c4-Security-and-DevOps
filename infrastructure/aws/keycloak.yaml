@@ -30,6 +30,9 @@ Parameters:
     Type: String
   AuthDbUrl:
     Type: String
+  InfinispanS3DiscoveryBucketName:
+    Type: String
+    Default: keycloak-infinispan-discovery
 
 Mappings:
   Task:
@@ -40,13 +43,7 @@ Mappings:
       prod: 1024
       beta: 1024
     DesiredCapacity:
-      prod: 1
-      beta: 1
-    MinCapacity:
-      prod: 1
-      beta: 1
-    MaxCapacity:
-      prod: 1
+      prod: 2
       beta: 1
 
 Conditions:
@@ -108,6 +105,23 @@ Resources:
         PasswordLength: 32
         ExcludePunctuation: true
 
+  InfinispanS3DiscoveryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${InfinispanS3DiscoveryBucketName}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     DependsOn:
@@ -152,8 +166,12 @@ Resources:
               Value: !Sub "logging-platform-collector.wallapop.${Environment}:5140"
             - Name: KC_HEALTH_ENABLED
               Value: true
-            - Name: KC_FEATURES
-              Value: persistent-user-sessions
+            - Name: KC_CACHE
+              Value: ispn
+            - Name: KC_CACHE_STACK
+              Value: ec2
+            - Name: JAVA_TOOL_OPTIONS
+              Value: !Sub "-Djgroups.s3.region_name=${AWS::Region} -Djgroups.s3.bucket_name=${InfinispanS3DiscoveryBucketName}"
             - Name: KC_DB
               Value: postgres
             - Name: KC_DB_SCHEMA
@@ -217,6 +235,11 @@ Resources:
               - kms:Decrypt
             Effect: Allow
             Resource: '*'
+          - Action: '*'
+            Effect: Allow
+            Resource:
+              - !GetAtt InfinispanS3DiscoveryBucket.Arn
+              - !Join [ '', [ !GetAtt InfinispanS3DiscoveryBucket.Arn, '/*' ] ]
 
   Service:
     Type: AWS::ECS::Service
@@ -280,6 +303,16 @@ Resources:
           SourceSecurityGroupId: !Ref PublicLoadBalancerSecurityGroup
           ToPort: 9000
           Description: 'Allow access from public Security Group to healthcheck port'
+
+  KeycloakSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SecurityGroup
+      SourceSecurityGroupId: !Ref SecurityGroup
+      IpProtocol: tcp
+      FromPort: 7800
+      ToPort: 7800
+      Description: "Allow embedded Infinispan cache nodes to communicate with each other"
 
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer

@@ -24,11 +24,13 @@ phases:
   build:
     commands:
       # Keycloak extensions
+      - cp extensions/monolith-users/conf/quarkus.properties infrastructure/docker
       - mvn -f extensions/monolith-users/pom.xml clean install
       - cp extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar infrastructure/docker/monolith-users.jar
       - mvn -f extensions/access-token-mapper/pom.xml clean install
       - cp extensions/access-token-mapper/target/access-token-mapper.jar infrastructure/docker/access-token-mapper.jar
-      - cp extensions/monolith-users/conf/quarkus.properties infrastructure/docker
+      - mvn -f extensions/jgroups-aws-bundle/pom.xml clean install
+      - cp extensions/jgroups-aws-bundle/target/jgroups-aws-bundle-jar-with-dependencies.jar infrastructure/docker/jgroups-aws-bundle.jar
       - cp config/realm.json infrastructure/docker
       - cp -r config/themes infrastructure/docker
 
