@@ -143,11 +143,9 @@ Resources:
     Properties:
       ActionsEnabled: True
       AlarmActions:
-        - Fn::ImportValue:
-            !Sub "${Project}-soft-sns-topic"
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       OKActions:
-        - Fn::ImportValue:
-            !Sub "${Project}-soft-sns-topic"
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       AlarmName: !Sub "${Project}-rds-primary_cpu-utilization-too-high-soft"
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
@@ -167,11 +165,9 @@ Resources:
     Properties:
       ActionsEnabled: True
       AlarmActions:
-        - Fn::ImportValue:
-            !Sub "${Project}-soft-sns-topic"
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       OKActions:
-        - Fn::ImportValue:
-            !Sub "${Project}-soft-sns-topic"
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       AlarmName: !Sub "${Project}-rds-primary_connections-too-high-soft"
       ComparisonOperator: GreaterThanThreshold
       EvaluationPeriods: 5
@@ -223,11 +219,9 @@ Resources:
     Properties:
       ActionsEnabled: True
       AlarmActions:
-        - Fn::ImportValue:
-            !Sub "${Project}-soft-sns-topic"
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       OKActions:
-        - Fn::ImportValue:
-            !Sub "${Project}-soft-sns-topic"
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       AlarmName: !Sub "${Project}-rds-replica_cpu-utilization-too-high-soft"
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
@@ -247,11 +241,9 @@ Resources:
     Properties:
       ActionsEnabled: True
       AlarmActions:
-        - Fn::ImportValue:
-            !Sub "${Project}-soft-sns-topic"
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       OKActions:
-        - Fn::ImportValue:
-            !Sub "${Project}-soft-sns-topic"
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       AlarmName: !Sub "${Project}-rds-replica_connections-too-high-soft"
       ComparisonOperator: GreaterThanThreshold
       EvaluationPeriods: 5
