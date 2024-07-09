@@ -17,10 +17,13 @@ Parameters:
     Type: String
     Default: iam-keycloak
     AllowedValues: [iam-keycloak]
+  EcrUri:
+    Type: String
+    Default: "567828013335.dkr.ecr.eu-west-1.amazonaws.com"
   DockerImageUri:
     Type: String
   ClusterPartition:
-    Type: 'AWS::SSM::Parameter::Value<String>'
+    Type: "AWS::SSM::Parameter::Value<String>"
     Description: ECS cluster partition where this service will run
   ArnCertificate:
     Type: String
@@ -148,6 +151,7 @@ Resources:
               - "-c"
               - /opt/keycloak/bin/kc.sh start --import-realm
           Environment:
+            # HTTP
             - Name: KC_HTTP_PORT
               Value: 8080
             - Name: KC_HOSTNAME
@@ -156,6 +160,7 @@ Resources:
               Value: xforwarded
             - Name: KC_HTTP_ENABLED
               Value: true
+            # Logging
             - Name: KC_LOG
               Value: console,syslog
             - Name: KC_LOG_LEVEL
@@ -164,16 +169,22 @@ Resources:
               Value: json
             - Name: KC_LOG_SYSLOG_ENDPOINT
               Value: !Sub "logging-platform-collector.wallapop.${Environment}:5140"
-            - Name: KC_HEALTH_ENABLED
-              Value: true
+            # Keycloak features
             - Name: KC_FEATURES
               Value: persistent-user-sessions
+            # Monitoring
+            - Name: KC_HEALTH_ENABLED
+              Value: true
+            - Name: KC_METRICS_ENABLED
+              Value: true
+            # Cache
             - Name: KC_CACHE
               Value: ispn
             - Name: KC_CACHE_STACK
               Value: ec2
             - Name: JAVA_TOOL_OPTIONS
               Value: !Sub "-Djgroups.s3.region_name=${AWS::Region} -Djgroups.s3.bucket_name=${InfinispanS3DiscoveryBucketName}-${Environment}"
+            # Databases
             - Name: KC_DB
               Value: postgres
             - Name: KC_DB_SCHEMA
@@ -204,6 +215,16 @@ Resources:
             - Name: PORTAL_HERO_SECRET
               ValueFrom: !Join [ ':', [ !Ref KeycloakClientSecretSecrets, 'portal-hero::' ] ]
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
+        - Name: telegraf
+          Image: !Sub "${EcrUri}/telegraf:1.31.1-alpine"
+          Essential: false
+          VolumesFrom:
+            - SourceContainer: !Ref ServiceName
+          Environment:
+            - Name: ENV
+              Value: !Ref Environment
+            - Name: KEYCLOAK_HOST
+              Value: localhost
 
   TaskRole:
     Type: AWS::IAM::Role

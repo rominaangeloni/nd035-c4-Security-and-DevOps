@@ -1,5 +1,8 @@
 FROM quay.io/keycloak/keycloak:25.0.0
 
+COPY infrastructure/docker/telegraf.conf /etc/telegraf/telegraf.conf
+VOLUME /etc/telegraf
+
 COPY infrastructure/docker/quarkus.properties /opt/keycloak/conf/
 COPY infrastructure/docker/monolith-users.jar /opt/keycloak/providers/
 COPY infrastructure/docker/access-token-mapper.jar /opt/keycloak/providers/

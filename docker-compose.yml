@@ -42,11 +42,13 @@ services:
       - KC_HEALTH_ENABLED=true
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HOSTNAME_ADMIN=http://localhost:9091
+      - KC_METRICS_ENABLED=true
+      - KC_FEATURES=persistent-user-sessions
       - KC_DB=postgres
       - KC_DB_USERNAME=keycloak
       - KC_DB_PASSWORD=password
       - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak
-      - KC_HOSTNAME_ADMIN=http://localhost:9091
       - MONOLITH_DB_USERNAME=root
       - MONOLITH_DB_PASSWORD=root
       - MONOLITH_DB_URL=jdbc:mysql://monolith-users-database:3306/monolith?isReadOnly=true
@@ -54,7 +56,6 @@ services:
       - AUTH_DB_PASSWORD=root
       - AUTH_DB_URL=jdbc:mysql://auth-users-database:3307/auth?isReadOnly=true
       - PORTAL_HERO_SECRET=dSGJlZFLlIZN2ZCIXeW0lAWuq5bnzxHI
-      - KC_FEATURES=persistent-user-sessions
     depends_on:
       - monolith-users-database
       - auth-users-database
