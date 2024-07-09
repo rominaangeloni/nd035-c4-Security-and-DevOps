@@ -40,6 +40,10 @@ Parameters:
   ReplicationLagThreshold:
     Type: Number
     Default: 30000 # 30 seconds
+  RdsInstanceMaxConnections:
+    Type: Number
+    Default: 189
+    Description: It should be aligned with number of ACUs due to we are using Serverless v2
 
 Conditions:
   AlarmsEnabled: !Equals [ !Ref Environment, 'prod']
@@ -76,6 +80,28 @@ Resources:
       MasterUsername: postgres
       BackupRetentionPeriod: 7
 
+  ClusterConsumedCapacitySoftAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmName: !Sub "${ServiceName}-${Environment}_database-capacity-consumption-near-maximum"
+      AlarmDescription: !Sub "${ServiceName} - we are running out of provisioned capacity (ACUs) for the database"
+      ActionsEnabled: true
+      AlarmActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      OKActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      Namespace: AWS/RDS
+      MetricName: ACUUtilization
+      Dimensions:
+        - Name: DBClusterIdentifier
+          Value: !Ref DatabaseCluster
+      Statistic: Maximum
+      EvaluationPeriods: 5
+      Period: 60
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 85
+
   DatabaseSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -111,6 +137,66 @@ Resources:
       CACertificateIdentifier: !Ref CaCertificateIdentifier
       PubliclyAccessible: false
 
+  PrimaryCPUUtilizationTooHighSoftAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      ActionsEnabled: True
+      AlarmActions:
+        - Fn::ImportValue:
+            !Sub "${Project}-soft-sns-topic"
+      OKActions:
+        - Fn::ImportValue:
+            !Sub "${Project}-soft-sns-topic"
+      AlarmName: !Sub "${Project}-rds-primary_cpu-utilization-too-high-soft"
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !Ref DatabaseInstance
+      EvaluationPeriods: 5
+      MetricName: CPUUtilization
+      Namespace: AWS/RDS
+      Period: 60
+      Statistic: Maximum
+      Threshold: 80
+      TreatMissingData: notBreaching
+
+  PrimaryConnectionsTooHighSoftAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      ActionsEnabled: True
+      AlarmActions:
+        - Fn::ImportValue:
+            !Sub "${Project}-soft-sns-topic"
+      OKActions:
+        - Fn::ImportValue:
+            !Sub "${Project}-soft-sns-topic"
+      AlarmName: !Sub "${Project}-rds-primary_connections-too-high-soft"
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 5
+      TreatMissingData: notBreaching
+      Threshold: 90
+      Metrics:
+        - Expression: !Sub
+            - "databaseconnections / ${RdsInstanceMaxConnections} * 100"
+            - RdsInstanceMaxConnections: !Ref RdsInstanceMaxConnections
+          Id: "percentage"
+          Label: "Connections percentage"
+          ReturnData: True
+        - Id: "databaseconnections"
+          Label: "DatabaseConnections"
+          ReturnData: False
+          MetricStat:
+            Metric:
+              MetricName: DatabaseConnections
+              Namespace: AWS/RDS
+              Dimensions:
+                - Name: DBInstanceIdentifier
+                  Value: !Ref DatabaseInstance
+            Period: 300
+            Stat: Maximum
+
   ReplicaInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -131,29 +217,67 @@ Resources:
       DBSubnetGroupName:
         Fn::ImportValue: !Sub "${Environment}-rds-private-subnetgroup"
 
-  ClusterConsumedCapacityAlarm:
+  ReplicaCPUUtilizationTooHighSoftAlarm:
     Type: AWS::CloudWatch::Alarm
     Condition: AlarmsEnabled
     Properties:
-      AlarmName: !Sub "${ServiceName}-${Environment}_database-capacity-consumption-near-maximum"
-      AlarmDescription: !Sub "${ServiceName} - we are running out of provisioned capacity (ACUs) for the database"
-      ActionsEnabled: true
+      ActionsEnabled: True
       AlarmActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+        - Fn::ImportValue:
+            !Sub "${Project}-soft-sns-topic"
       OKActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
-      Namespace: AWS/RDS
-      MetricName: ACUUtilization
-      Dimensions:
-        - Name: DBClusterIdentifier
-          Value: !Ref DatabaseCluster
-      Statistic: Maximum
-      EvaluationPeriods: 5
-      Period: 60
+        - Fn::ImportValue:
+            !Sub "${Project}-soft-sns-topic"
+      AlarmName: !Sub "${Project}-rds-replica_cpu-utilization-too-high-soft"
       ComparisonOperator: GreaterThanThreshold
-      Threshold: 85
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !Ref ReplicaInstance
+      EvaluationPeriods: 5
+      MetricName: CPUUtilization
+      Namespace: AWS/RDS
+      Period: 60
+      Statistic: Maximum
+      Threshold: 80
+      TreatMissingData: notBreaching
 
-  DatabaseReplicaLagTooHighAlarm:
+  ReplicaConnectionsTooHighSoftAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      ActionsEnabled: True
+      AlarmActions:
+        - Fn::ImportValue:
+            !Sub "${Project}-soft-sns-topic"
+      OKActions:
+        - Fn::ImportValue:
+            !Sub "${Project}-soft-sns-topic"
+      AlarmName: !Sub "${Project}-rds-replica_connections-too-high-soft"
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 5
+      TreatMissingData: notBreaching
+      Threshold: 90
+      Metrics:
+        - Expression: !Sub
+            - "databaseconnections / ${RdsInstanceMaxConnections} * 100"
+            - RdsInstanceMaxConnections: !Ref RdsInstanceMaxConnections
+          Id: "percentage"
+          Label: "Connections percentage"
+          ReturnData: True
+        - Id: "databaseconnections"
+          Label: "DatabaseConnections"
+          ReturnData: False
+          MetricStat:
+            Metric:
+              MetricName: DatabaseConnections
+              Namespace: AWS/RDS
+              Dimensions:
+                - Name: DBInstanceIdentifier
+                  Value: !Ref ReplicaInstance
+            Period: 300
+            Stat: Maximum
+
+  ReplicaLagTooHighSoftAlarm:
     Type: AWS::CloudWatch::Alarm
     Condition: AlarmsEnabled
     Properties:
