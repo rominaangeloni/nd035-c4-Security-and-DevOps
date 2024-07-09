@@ -2451,10 +2451,11 @@
     "oauth2DeviceCodeLifespan": "600",
     "parRequestUriLifespan": "60",
     "clientSessionMaxLifespan": "0",
+    "organizationsEnabled": "false",
     "shortVerificationUri": "",
     "actionTokenGeneratedByUserLifespan.reset-credentials": ""
   },
-  "keycloakVersion": "25.0.0",
+  "keycloakVersion": "25.0.1",
   "userManagedAccessAllowed": false,
   "organizationsEnabled": false,
   "clientProfiles": {
