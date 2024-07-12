@@ -517,9 +517,9 @@ Resources:
       MetricName: UnHealthyHostCount
       Dimensions:
         - Name: LoadBalancer
-          Value: !Ref PublicLoadBalancer
+          Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
         - Name: TargetGroup
-          Value: !Ref PublicTargetGroup
+          Value: !GetAtt PublicTargetGroup.TargetGroupFullName
       Statistic: Maximum
       ComparisonOperator: GreaterThanThreshold
       Threshold: 0
