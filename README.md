@@ -4,10 +4,14 @@ Identity and access manager (Keycloak)
 ## Steps 
 
 ### Test it locally
+0- Add keycloak host on `/etc/hosts` file 
+```
+127.0.0.1 keycloak
+```
 
 1- Execute init dev script `./extensions/build.sh`
 
-2 -Run docker compose
+2- Run docker compose
 
 4- Download [oauth2c](https://github.com/cloudentity/oauth2c) and run :
 ```

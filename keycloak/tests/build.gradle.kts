@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     kotlin("jvm") version "2.0.0"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+    id("com.diffplug.spotless") version "6.25.0"
     jacoco
 }
 
@@ -43,7 +43,39 @@ tasks.withType<KotlinJvmCompile>().configureEach {
     }
 }
 
-ktlint {
-    verbose.set(true)
-    enableExperimentalRules.set(true)
+tasks.getByName("classes").dependsOn(tasks.getByName("spotlessApply"))
+
+configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    isEnforceCheck = false
+
+    kotlin {
+        ktlint("0.50.0")
+    }
+}
+
+val integrationTest: SourceSet = sourceSets.create("integrationTest") {
+    java {
+        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+        srcDir("src/integration-test/java")
+    }
+    resources.srcDir("src/integration-test/resources")
+}
+
+configurations[integrationTest.implementationConfigurationName].extendsFrom(configurations.testImplementation.get())
+configurations[integrationTest.runtimeOnlyConfigurationName].extendsFrom(configurations.testRuntimeOnly.get())
+
+val integrationTestTask = tasks.register<Test>("integrationTest") {
+    group = "verification"
+
+    useJUnitPlatform()
+
+    testClassesDirs = integrationTest.output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+
+    shouldRunAfter("test")
+}
+
+tasks.check {
+    dependsOn(integrationTestTask)
 }

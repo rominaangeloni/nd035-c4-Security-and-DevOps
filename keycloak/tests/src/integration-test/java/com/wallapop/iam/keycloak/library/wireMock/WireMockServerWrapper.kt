@@ -1,4 +1,4 @@
-package com.wallapop.iam.keycloak
+package com.wallapop.iam.keycloak.library.wireMock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -14,35 +14,22 @@ import com.github.tomakehurst.wiremock.client.WireMock.not
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.verify
-import com.nimbusds.oauth2.sdk.AuthorizationCode
+import com.nimbusds.oauth2.sdk.Scope
 import com.nimbusds.oauth2.sdk.TokenResponse
-import com.nimbusds.oauth2.sdk.auth.Secret
-import com.nimbusds.oauth2.sdk.id.ClientID
 import com.nimbusds.oauth2.sdk.id.Issuer
 import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.oauth2.sdk.token.AccessToken
-import com.wallapop.iam.oauth2.OAuth2Client
+import com.wallapop.iam.keycloak.library.wireMock.TokenResponseAssert.Companion.assertToken
 import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions.assertThat
 import java.net.URI
 
-class FakeConfidentialClient(
-    private val clientId: ClientID,
-    private val clientSecret: Secret,
-) {
+class WireMockServerWrapper {
     private val host = resolveDockerHostname()
     private val port = 9876
     private val redirectUriPath = "/callback"
 
     private val wireMockServer = WireMockServer(port)
-
-    private val oAuthClient =
-        OAuth2Client(
-            host = "localhost",
-            port = 9090,
-            basePath = "/realms/wallapop-connect",
-            authorizationEndpoint = "/protocol/openid-connect/auth",
-            tokenEndpoint = "/protocol/openid-connect/token",
-        )
 
     init {
         configureFor(port)
@@ -104,23 +91,30 @@ class FakeConfidentialClient(
         )
     }
 
+    fun verifyRequestReceivedTreeOnRedirectUri() {
+        verify(
+            exactly(3),
+            getRequestedFor(urlPathEqualTo(redirectUriPath)),
+        )
+    }
+
     private fun findFirstServeEventWithUrlStartingWith() =
         getAllServeEvents().first {
             it.request.url.startsWith(redirectUriPath)
         }
 
-    fun exchangeCodeForAccessToken(authorizationRequestContext: OAuth2Client.AuthorizationCodeFlowWithPkceRequestContext) =
-        oAuthClient.exchangeCodeForAccessToken(
-            codeVerifier = authorizationRequestContext.codeVerifier,
-            redirectUri = authorizationRequestContext.redirectUri,
-            clientId = clientId,
-            clientSecret = clientSecret,
-            authorizationCode = AuthorizationCode(receivedAuthorizationCode()),
-        )
-
-    private fun receivedAuthorizationCode(): String =
+    fun receivedAuthorizationCode(): String =
         findFirstServeEventWithUrlStartingWith()
             .request.queryParams["code"]!!.values().first()
+
+    fun verifyTokenReceived(accessToken: TokenResponse) {
+        assertToken(accessToken)
+            .accessTokenMatches {
+                assertThat(it.lifetime).isEqualTo(300)
+                assertThat(it.type.toString()).isEqualTo("Bearer")
+                assertThat(it.scope).containsOnly(Scope.Value("offline_access"))
+            }
+    }
 }
 
 class TokenResponseAssert(actual: TokenResponse) : AbstractAssert<TokenResponseAssert, TokenResponse>(
@@ -128,7 +122,7 @@ class TokenResponseAssert(actual: TokenResponse) : AbstractAssert<TokenResponseA
     TokenResponseAssert::class.java,
 ) {
     companion object {
-        fun assertThat(locale: TokenResponse) = TokenResponseAssert(locale)
+        fun assertToken(locale: TokenResponse) = TokenResponseAssert(locale)
     }
 
     fun accessTokenMatches(block: (AccessToken) -> Unit) = block(this.actual.toSuccessResponse().tokens.accessToken)

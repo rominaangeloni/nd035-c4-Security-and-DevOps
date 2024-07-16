@@ -34,11 +34,15 @@ phases:
       - cp config/realm.json infrastructure/docker
       - cp -r config/themes infrastructure/docker
 
+      # add keycloak hostname for integration tests
+      - echo "127.0.0.1 keycloak" >> /etc/hosts
+      - echo "keycloak hostname was added successfully - $(grep keycloak /etc/hosts)"
+
       # Keycloak tests
       - docker-compose up -d # TODO: try to use ECR
       - ./infrastructure/buildspec/await_keycloak.sh
       - docker container ls -a
-      - ./keycloak/tests/gradlew -p keycloak/tests --info --full-stacktrace --warning-mode all clean build --console=plain --no-watch-fs
+      - ./keycloak/tests/gradlew -p keycloak/tests clean build
 
       # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
       - docker run -v "$PWD":/code -w /code ${ECR}/cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml

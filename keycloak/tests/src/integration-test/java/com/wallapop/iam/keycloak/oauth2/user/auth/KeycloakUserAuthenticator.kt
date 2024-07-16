@@ -1,4 +1,4 @@
-package com.wallapop.iam.keycloak
+package com.wallapop.iam.keycloak.oauth2.user.auth
 
 import org.openqa.selenium.By
 import org.openqa.selenium.chrome.ChromeOptions
@@ -12,7 +12,7 @@ import java.time.Duration
 private val logger = LoggerFactory.getLogger(KeycloakUserAuthenticator::class.java)
 
 class KeycloakUserAuthenticator {
-    private val driver = RemoteWebDriver(URL("http://localhost:4444/"), ChromeOptions())
+    private var driver = RemoteWebDriver(URL("http://localhost:4444/"), ChromeOptions())
 
     fun request(authenticationUri: URI) {
         driver.get(authenticationUri.toString())
@@ -54,12 +54,21 @@ class KeycloakUserAuthenticator {
     fun expectUnsuccessfulAuthentication(
         credentials: Credentials,
         authenticationUri: URI,
+        responseExpectedToContain: String,
     ) {
         tryAuthenticate(
             credentials = credentials,
             authenticationUri = authenticationUri,
-            responseExpectedToContain = "Invalid username or password",
+            responseExpectedToContain = responseExpectedToContain,
         )
+    }
+
+    fun resetDriver() {
+        initializeDriver()
+    }
+    private fun initializeDriver() {
+        driver.quit()
+        driver = RemoteWebDriver(URL("http://localhost:4444/"), ChromeOptions())
     }
 
     fun quit() = driver.quit()
