@@ -97,17 +97,6 @@ Resources:
         PasswordLength: 30
         ExcludeCharacters: '"@/\'
 
-  KeycloakClientSecretSecrets:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client-secrets"
-      Description: Secrets for the Keycloak's client-secrets
-      GenerateSecretString:
-        SecretStringTemplate: '{}'
-        GenerateStringKey: "portal-hero"
-        PasswordLength: 32
-        ExcludePunctuation: true
-
   KeycloakPortalHeroClientSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -237,7 +226,7 @@ Resources:
             - Name: AUTH_DB_PASSWORD
               ValueFrom: !Join [ ':', [ !Ref KeycloakAuthDatabaseUserSecrets, 'password::' ] ]
             - Name: PORTAL_HERO_SECRET
-              ValueFrom: !Join [ ':', [ !Ref KeycloakClientSecretSecrets, 'portal-hero::' ] ]
+              ValueFrom: !Join [ ':', [ !Ref KeycloakPortalHeroClientSecret, 'secret::' ] ]
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
         - Name: telegraf
           Image: !Sub "${EcrUri}/telegraf:1.31.1-alpine"
