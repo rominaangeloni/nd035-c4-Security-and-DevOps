@@ -108,6 +108,28 @@ Resources:
         PasswordLength: 32
         ExcludePunctuation: true
 
+  KeycloakPortalHeroClientSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client/portal-hero"
+      Description: Secrets for the Keycloak's portal-hero secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{}'
+        GenerateStringKey: "secret"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
+  KeycloakGeekMarketClientSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client/geek-market"
+      Description: Secrets for the Keycloak's geek-market secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{}'
+        GenerateStringKey: "secret"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
   InfinispanS3DiscoveryBucket:
     Type: AWS::S3::Bucket
     Properties:
