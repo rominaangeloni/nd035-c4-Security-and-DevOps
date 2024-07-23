@@ -1603,8 +1603,8 @@
     "GRANT_CONSENT_ERROR",
     "IDENTITY_PROVIDER_FIRST_LOGIN_ERROR"
   ],
-  "adminEventsEnabled": false,
-  "adminEventsDetailsEnabled": false,
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
   "identityProviders": [],
   "identityProviderMappers": [],
   "components": {
@@ -2528,6 +2528,7 @@
     "parRequestUriLifespan": "60",
     "clientSessionMaxLifespan": "0",
     "organizationsEnabled": "false",
+    "adminEventsExpiration": "1296000",
     "shortVerificationUri": "",
     "actionTokenGeneratedByUserLifespan.reset-credentials": ""
   },
