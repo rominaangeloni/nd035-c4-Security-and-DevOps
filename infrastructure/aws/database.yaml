@@ -42,14 +42,22 @@ Parameters:
     Default: 30000 # 30 seconds
   RdsInstanceMaxConnections:
     Type: Number
-    Default: 189
+    Default: 400
     Description: It should be aligned with number of ACUs due to we are using Serverless v2
 
 Conditions:
   AlarmsEnabled: !Equals [ !Ref Environment, 'prod']
 
-Resources:
+Mappings:
+  Database:
+    MinCapacity:
+      beta: 1
+      prod: 2
+    MaxCapacity:
+      beta: 1
+      prod: 10
 
+Resources:
   DatabaseCluster:
     Type: AWS::RDS::DBCluster
     Properties:
@@ -68,8 +76,8 @@ Resources:
       StorageType: aurora
       KmsKeyId: !Sub "${KmsKeyId}"
       ServerlessV2ScalingConfiguration:
-        MinCapacity: 1
-        MaxCapacity: 2
+        MinCapacity: !FindInMap [ Database, MinCapacity, !Ref Environment ]
+        MaxCapacity: !FindInMap [ Database, MaxCapacity, !Ref Environment ]
       PreferredMaintenanceWindow: wed:00:43-wed:01:13
       DBSubnetGroupName:
         Fn::ImportValue: !Sub "${Environment}-rds-private-subnetgroup"
@@ -96,7 +104,7 @@ Resources:
       Dimensions:
         - Name: DBClusterIdentifier
           Value: !Ref DatabaseCluster
-      Statistic: Maximum
+      Statistic: Average
       EvaluationPeriods: 5
       Period: 60
       ComparisonOperator: GreaterThanThreshold
