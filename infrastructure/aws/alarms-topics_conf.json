@@ -1,0 +1,5 @@
+{
+  "Parameters": {
+    "PagerDutyIntegrationUri": "https://events.pagerduty.com/integration/fc1c362b19f24402c0aa89262cf91966/enqueue"
+  }
+}
