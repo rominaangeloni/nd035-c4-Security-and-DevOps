@@ -42,8 +42,8 @@ Parameters:
     Default: 30000 # 30 seconds
   RdsInstanceMaxConnections:
     Type: Number
-    Default: 400
-    Description: It should be aligned with number of ACUs due to we are using Serverless v2
+    Default: 823
+    Description: It should be aligned with number of ACUs due to we are using Serverless v2 (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.setting-capacity.html#aurora-serverless-v2.max-connections)
 
 Conditions:
   AlarmsEnabled: !Equals [ !Ref Environment, 'prod']
@@ -55,7 +55,7 @@ Mappings:
       prod: 2
     MaxCapacity:
       beta: 1
-      prod: 10
+      prod: 4
 
 Resources:
   DatabaseCluster:
