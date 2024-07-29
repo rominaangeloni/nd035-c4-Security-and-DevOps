@@ -5,6 +5,6 @@
     "ArnCertificate": "arn:aws:acm:eu-west-1:139222918132:certificate/0fa1b556-5698-409b-8523-3f73931075c7",
     "KeycloakDbUrl": "jdbc:postgresql://iam-keycloak.cluster-ctpmxmabjbqi.eu-west-1.rds.amazonaws.com:5432/keycloak",
     "MonolithDbUrl": "jdbc:mysql://monolith-db-primary.ctpmxmabjbqi.eu-west-1.rds.amazonaws.com:3306/shnmpro2?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&autoReconnect=true&useSSL=false&isReadOnly=true",
-    "AuthDbUrl": "jdbc:mysql://auth-primary.ctpmxmabjbqi.eu-west-1.rds.amazonaws.com:3306/auth?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&autoReconnect=true&useSSL=false&isReadOnly=true"
+    "AuthDbUrl": "jdbc:mysql://authdb.wallapop.beta:3306/auth?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false&autoReconnect=true&useSSL=false&isReadOnly=true"
   }
 }
