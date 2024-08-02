@@ -912,13 +912,13 @@ Resources:
             Stat: Sum
           ReturnData: False
         - Id: elb5xxcount
-          Label: "HTTPCode_5XX_Count"
+          Label: "HTTPCode_ELB_5XX_Count"
           MetricStat:
             Metric:
               Dimensions:
                 - Name: LoadBalancer
                   Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
-              MetricName: HTTPCode_5XX_Count
+              MetricName: HTTPCode_ELB_5XX_Count
               Namespace: AWS/ApplicationELB
             Period: 60
             Stat: Sum
@@ -970,13 +970,13 @@ Resources:
             Stat: Sum
           ReturnData: False
         - Id: elb5xxcount
-          Label: "HTTPCode_5XX_Count"
+          Label: "HTTPCode_ELB_5XX_Count"
           MetricStat:
             Metric:
               Dimensions:
                 - Name: LoadBalancer
                   Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
-              MetricName: HTTPCode_5XX_Count
+              MetricName: HTTPCode_ELB_5XX_Count
               Namespace: AWS/ApplicationELB
             Period: 60
             Stat: Sum
