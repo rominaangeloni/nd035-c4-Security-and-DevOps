@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:25.0.1
+FROM quay.io/keycloak/keycloak:25.0.2
 
 COPY infrastructure/docker/telegraf.conf /etc/telegraf/telegraf.conf
 VOLUME /etc/telegraf

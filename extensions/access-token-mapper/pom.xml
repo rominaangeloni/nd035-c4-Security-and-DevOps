@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-parent</artifactId>
-    <version>25.0.1</version>
+    <version>25.0.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>access-token-mapper</artifactId>
@@ -11,7 +11,7 @@
   <description>Wallapop Custom Mapper Provider</description>
 
   <properties>
-    <keycloak>25.0.1</keycloak>
+    <keycloak>25.0.2</keycloak>
     <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
