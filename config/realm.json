@@ -659,7 +659,7 @@
       ]
     },
     {
-      "id": "70291dce-9a40-4034-9e68-b0d14a49cfac",
+      "id": "3da28deb-ea70-41a5-85d5-643d7e6f14fc",
       "clientId": "geek-market",
       "name": "Geek Market",
       "description": "Geek Market client",
@@ -691,7 +691,7 @@
       "frontchannelLogout": true,
       "protocol": "openid-connect",
       "attributes": {
-        "client.secret.creation.time": "1721142909",
+        "client.secret.creation.time": "1715265033",
         "post.logout.redirect.uris": "+",
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
@@ -714,7 +714,7 @@
       "nodeReRegistrationTimeout": -1,
       "protocolMappers": [
         {
-          "id": "79c671ef-53de-4954-a3b8-0904c870eff8",
+          "id": "bc87bfac-484c-434d-bb8d-65634d652cc6",
           "name": "wallapop user id",
           "protocol": "openid-connect",
           "protocolMapper": "wallapop-user-id",
@@ -2532,7 +2532,7 @@
     "shortVerificationUri": "",
     "actionTokenGeneratedByUserLifespan.reset-credentials": ""
   },
-  "keycloakVersion": "25.0.1",
+  "keycloakVersion": "25.0.2",
   "userManagedAccessAllowed": false,
   "organizationsEnabled": false,
   "clientProfiles": {
