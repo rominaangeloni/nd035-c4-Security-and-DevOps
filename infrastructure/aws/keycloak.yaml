@@ -996,6 +996,50 @@ Resources:
       Threshold: 5.0
       TreatMissingData: "notBreaching"
 
+  PublicAlb3XXRatioSigninBrokenSoftAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProdEnvironment
+    Properties:
+      ActionsEnabled: Yes
+      AlarmActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      OKActions:
+        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
+      AlarmDescription: !Sub "HTTP 3XX Ratio too high in ${Project} sign-in is probably broken caused by Infinispan inconsistent state (Soft)"
+      AlarmName: !Sub "${Project}-api_3xx-too-high-sign-in-probably-broken-soft"
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      Metrics:
+        - Id: ratio
+          Label: "3XX percentage"
+          Expression: "(target3xxcount) * 100 / requestcount"
+        - Id: target3xxcount
+          Label: "HTTPCode_Target_3XX_Count"
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: LoadBalancer
+                  Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
+              MetricName: HTTPCode_Target_3XX_Count
+              Namespace: AWS/ApplicationELB
+            Period: 300
+            Stat: Sum
+          ReturnData: False
+        - Id: requestcount
+          Label: "RequestCount"
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: LoadBalancer
+                  Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
+              MetricName: RequestCount
+              Namespace: AWS/ApplicationELB
+            Period: 300
+            Stat: Sum
+          ReturnData: False
+      Threshold: 10.0
+      TreatMissingData: "notBreaching"
+
   KeycloakDatabaseSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
