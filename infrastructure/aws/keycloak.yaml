@@ -826,6 +826,27 @@ Resources:
         - Name: LoadBalancer
           Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
 
+  PublicAlbLatencyHardAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProdEnvironment
+    Properties:
+      AlarmName: !Sub "${Project}-api_latency-too-high-hard"
+      Namespace: AWS/ApplicationELB
+      MetricName: TargetResponseTime
+      ExtendedStatistic: p90
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 10
+      Period: 600
+      EvaluationPeriods: 3
+      TreatMissingData: "notBreaching"
+      AlarmActions:
+        - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
+      OKActions:
+        - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
+      Dimensions:
+        - Name: LoadBalancer
+          Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
+
   PublicAlbUnhealthyHostSoftAlarm:
     Type: AWS::CloudWatch::Alarm
     Condition: IsProdEnvironment
