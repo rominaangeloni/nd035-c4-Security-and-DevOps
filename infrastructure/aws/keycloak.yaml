@@ -367,10 +367,8 @@ Resources:
     Condition: IsProdEnvironment
     Properties:
       AlarmActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       OKActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       AlarmName: !Sub "${ServiceName}_memory-usage-too-high-hard"
       AlarmDescription: !Sub "Memory usage too high in ${ServiceName} (Hard)"
@@ -463,10 +461,8 @@ Resources:
     Condition: IsProdEnvironment
     Properties:
       AlarmActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       OKActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       AlarmName: !Sub "${ServiceName}_cpu-usage-too-high-hard"
       AlarmDescription: !Sub "CPU usage too high in ${ServiceName} (Hard)"
@@ -560,10 +556,8 @@ Resources:
     Condition: IsProdEnvironment
     Properties:
       AlarmActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       OKActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       AlarmName: !Sub "${ServiceName}_running-tasks-below-minimum-hard"
       AlarmDescription: !Sub "Running task count is below minimum in ${ServiceName} (Hard)"
@@ -861,10 +855,8 @@ Resources:
     Condition: IsProdEnvironment
     Properties:
       AlarmActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       OKActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       AlarmName: !Sub "${Project}-api_unhealthy-hosts-too-high-hard"
       AlarmDescription: !Sub "Unhealthy host count is above threshold in ${Project}-api (Hard)"
@@ -944,10 +936,8 @@ Resources:
     Properties:
       ActionsEnabled: Yes
       AlarmActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       OKActions:
-        - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       AlarmDescription: !Sub "HTTP 5XX Ratio too high in ${Project} (Hard)"
       AlarmName: !Sub "${Project}-api_5xx-too-high-hard"
