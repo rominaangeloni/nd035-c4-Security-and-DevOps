@@ -46,13 +46,13 @@ Mappings:
       prod: 1024
       beta: 1024
     DesiredCapacity:
-      prod: 2
+      prod: 1
       beta: 1
     MinCapacity:
-      prod: 2
+      prod: 1
       beta: 1
     MaxCapacity:
-      prod: 4
+      prod: 1
       beta: 1
 
 Conditions:
