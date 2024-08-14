@@ -1011,7 +1011,7 @@ Resources:
       Threshold: 5.0
       TreatMissingData: "notBreaching"
 
-  PublicAlb3XXRatioSigninBrokenSoftAlarm:
+  PublicAlb3XXRatioSoftAlarm:
     Type: AWS::CloudWatch::Alarm
     Condition: IsProdEnvironment
     Properties:
@@ -1021,10 +1021,12 @@ Resources:
       OKActions:
         - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       AlarmDescription: !Sub "HTTP 3XX Ratio too high in ${Project} sign-in is probably broken caused by Infinispan inconsistent state (Soft)"
-      AlarmName: !Sub "${Project}-api_3xx-too-high-sign-in-probably-broken-soft"
-      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmName: !Sub "${Project}-api_3xx-too-high-soft"
+      ComparisonOperator: GreaterThanUpperThreshold
       EvaluationPeriods: 1
       Metrics:
+        - Expression: ANOMALY_DETECTION_BAND(ratio, 2)
+          Id: ad1
         - Id: ratio
           Label: "3XX percentage"
           Expression: "(target3xxcount) * 100 / requestcount"
@@ -1052,7 +1054,7 @@ Resources:
             Period: 300
             Stat: Sum
           ReturnData: False
-      Threshold: 10.0
+      ThresholdMetricId: ad1
       TreatMissingData: "notBreaching"
 
   KeycloakDatabaseSecurityGroupIngress:
