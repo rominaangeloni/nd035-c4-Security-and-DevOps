@@ -47,13 +47,13 @@ Mappings:
       beta: 1024
     DesiredCapacity:
       prod: 1
-      beta: 1
+      beta: 2
     MinCapacity:
       prod: 1
-      beta: 1
+      beta: 2
     MaxCapacity:
       prod: 1
-      beta: 1
+      beta: 2
 
 Conditions:
   IsProdEnvironment: !Equals [ !Ref Environment, 'prod']
