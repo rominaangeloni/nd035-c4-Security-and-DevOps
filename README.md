@@ -143,5 +143,5 @@ Flow details:
 
 # Deployment
 
-1. Merge PR into `main`
+1. Merge PR into `main`. The deployment to beta environment is done automatically when merging the branch into main.
 2. Trigger deploy with Deploy bot: `deploy env=prod service=iam tag=main`
