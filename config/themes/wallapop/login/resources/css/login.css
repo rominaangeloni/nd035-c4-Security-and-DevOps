@@ -1,37 +1,131 @@
+@font-face {
+  font-family: 'Wallie-Fit';
+  src: url('../fonts/Wallie-Fit.woff2') format('woff2'),
+    url('../fonts/Wallie-Fit.woff') format('woff'),
+    url('../fonts/Wallie-Fit.ttf') format('truetype');
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: 'Wallie-Chunky';
+  src: url('../fonts/Wallie-Chunky.woff2') format('woff2'),
+    url('../fonts/Wallie-Chunky.woff') format('woff'),
+    url('../fonts/Wallie-Chunky.ttf') format('truetype');
+  font-weight: 700;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: 'Wallie-Skinny';
+  src: url('../fonts/Wallie-Skinny.woff2') format('woff2'),
+    url('../fonts/Wallie-Skinny.woff') format('woff'),
+    url('../fonts/Wallie-Skinny.ttf') format('truetype');
+  font-weight: 300;
+  font-display: fallback;
+}
+
 body {
-    background: url(../img/favicon.ico);
-    background-size: auto;
+  font-family: Wallie-Fit !important;
+  background: #29363d;
 }
 
 .login-pf body {
-    background: #f0f0f0 repeat-x 50% 0;
-    background-size: auto;
+  background-image: none;
+  background-color: rgb(41, 54, 61);
+}
+
+.login-pf-page {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+}
+
+#kc-header {
+  display: none;
 }
 
 .card-pf {
-    margin: 0 auto;
-    box-shadow: var(--pf-global--BoxShadow--lg);
-    padding: 0 20px;
-    max-width: 500px;
-    border-top: 4px solid;
-    border-color: rgb(61, 210, 186);
-}
-
-#kc-header-wrapper {
-    background: url(../img/wallapop-positive-logotype.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    padding: 62px 10px 20px;
-    white-space: normal;
-    color: rgb(0,0,0,0);
-}
-
-.pf-c-button.pf-m-primary {
-    color: var(--pf-c-button--m-primary--Color);
-    background-color: rgb(61, 210, 186);
+  background-color: rgb(255, 255, 255);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: calc(100% - 96px);
+  max-width: 420px;
+  position: relative;
+  width: 100%;
 }
 
 #kc-page-title {
-font-size: x-large;
+  font-family: Wallie-Chunky;
+  font-size: 1.5rem;
+  font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: antialiased;
+  -o-font-smoothing: antialiased;
+  -ms-font-smoothing: antialiased;
+  line-height: 32px;
+  color: #29363d;
+
+  text-align: left;
+  margin: 0px 0px 16px 0px;
+}
+
+.pf-c-button.pf-m-primary {
+  background-color: #3dd2ba;
+  border: 2px solid #3dd2ba;
+  padding: 0px 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100px;
+  min-height: 40px;
+  min-width: 88px;
+}
+
+.pf-c-button:after {
+  border: none;
+  background: transparent;
+}
+
+#kc-form-buttons {
+  margin: 16px;
+}
+
+.wallapop-terms__container {
+  font-size: 0.875rem;
+  line-height: 20px;
+  color: #5c7a89;
+}
+
+.wallapop-terms__link {
+  cursor: pointer;
+  color: #038673;
+}
+
+.wallapop-terms__link:hover {
+  text-decoration: none;
+  color: #29363d;
+}
+
+.login-pf-page .card-pf {
+  padding: 16px;
+}
+
+.login-pf-page .login-pf-header {
+  margin-bottom: 10px;
+}
+
+.login-pf-page .login-pf-header h1#kc-page-title {
+  padding: 0px 16px 0px 16px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;
 }

@@ -1,0 +1,100 @@
+.wallapop-input__wrapper {
+  border-radius: 8px;
+  box-shadow: inset 0px 0px 0px 1px #5c7a89;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  padding: 20px 16px 20px 16px;
+  position: relative;
+  min-height: 24px;
+  transition: min-height 0.25s, padding 0.25s;
+  box-sizing: content-box;
+  text-align: start;
+}
+
+.wallapop-input__wrapper--focused,
+.wallapop-input__wrapper--filled {
+  padding: calc(20px / 2) 16px calc(20px / 2) 16px;
+  min-height: 48px;
+  box-shadow: inset 0px 0px 0px 2px #29363d;
+}
+
+.wallapop-input__label {
+  font-size: 1rem;
+  font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: antialiased;
+  -o-font-smoothing: antialiased;
+  -ms-font-smoothing: antialiased;
+  line-height: 32px;
+
+  width: calc(100% - 16px * 2 - 24px);
+  z-index: 1;
+  position: absolute;
+  transition: font-size 0.25s;
+  color: #5c7a89;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wallapop-input__label--focused,
+.wallapop-input__label--filled {
+  font-size: 0.875rem;
+  line-height: 20px;
+  color: #29363d;
+}
+
+.wallapop-input__element {
+  font-size: 1rem;
+  font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: antialiased;
+  -o-font-smoothing: antialiased;
+  -ms-font-smoothing: antialiased;
+  line-height: 32px;
+  color: #29363d;
+
+  width: calc(100% - 16px * 2 - 24px);
+  border: none;
+  padding: 0px;
+  position: absolute;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: transparent;
+}
+
+.wallapop-input__element:focus,
+.wallapop-input__element--filled {
+  outline: none;
+  top: 30px;
+  padding-bottom: 0px;
+}
+
+.wallapop-input__element::placeholder {
+  color: transparent;
+}
+
+.wallapop-input__element:focus::placeholder {
+  transition: all 0.1s ease-in;
+  color: #a3b8c1;
+}
+
+.wallapop-input__icon-section {
+  position: absolute;
+  right: 16px;
+  top: 2px;
+  bottom: 2px;
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  gap: 8px;
+}
+
+.wallapop-input__icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

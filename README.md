@@ -1,11 +1,14 @@
 # IAM
+
 Identity and access manager (Keycloak)
 
-## Steps 
+## Steps
 
 ### Test it locally
-0- Add keycloak host on `/etc/hosts` file 
-```
+
+0- Add keycloak host on `/etc/hosts` file
+
+```bash
 127.0.0.1 keycloak
 ```
 
@@ -14,7 +17,8 @@ Identity and access manager (Keycloak)
 2- Run docker compose
 
 4- Download [oauth2c](https://github.com/cloudentity/oauth2c) and run :
-```
+
+```bash
 oauth2c "http://localhost:9090/realms/wallapop-connect" \
 --browser-timeout 30s  \
 --grant-type authorization_code  \
@@ -23,11 +27,10 @@ oauth2c "http://localhost:9090/realms/wallapop-connect" \
 --client-secret dSGJlZFLlIZN2ZCIXeW0lAWuq5bnzxHI  \
 --auth-method client_secret_basic  \
 --response-types code  \
---response-mode query 
+--response-mode query
 ```
 
 You can log in with users created automatically from dev [script](scripts/users-database/test-users-setup.sql)
-
 
 # Flows
 
@@ -80,7 +83,8 @@ Flow details:
 1. The seller logs into Portal Hero with their Portal Hero user and password
 2. The seller initiates the action for allowing PortalHero interact with Wallapop on their behalf
 3. Portal Hero redirects the seller to Keycloak authorization endpoint
-   ```
+
+   ```bash
    GET http://localhost:9090/realms/wallapop-connect/protocol/openid-connect/auth
    Query params:
    nonce: 3sDzwHqEV5kvxvLkbR9d2x
@@ -91,27 +95,30 @@ Flow details:
    client_id: portal-hero
    code_challenge: k7Xkh4lovg1rqcUov1_Y0TgYHUfwwW5kASjyq0wR4k8
    code_challenge_method: S256
-   
+
    ┌─ PKCE ──────────────────────────────────────────────────────────┐
    | code_verifier = 4PGG17Pf4MRaLT5U4GXhJjUJ7pAHp0T47zbtIZHYq3S     |
    | code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))) |
    └─────────────────────────────────────────────────────────────────┘
    ```
-   - `nonce` - The nonce parameter in OpenID Connect is crucial for associating a client session with the ID-Token 
+
+   - `nonce` - The nonce parameter in OpenID Connect is crucial for associating a client session with the ID-Token
    - and it is used for mitigating replay attacks.
-   - `redirect_uri` - the URI configured for the client in Keycloak 
-   - `response_mode` - It's an optional value that informs the Authorization Server of the mechanism to be used for 
-   returning Authorization Response parameters from the Authorization Endpoint.
+   - `redirect_uri` - the URI configured for the client in Keycloak
+   - `response_mode` - It's an optional value that informs the Authorization Server of the mechanism to be used for
+     returning Authorization Response parameters from the Authorization Endpoint.
    - `response_type` - For the Authorization Code grant, use `response_type=code` to include the authorization code.
    - `state` - An optional opaque value that is used for preventing cross-site request forgery. We recommend using it.
    - `client_id` - the ID of the client configured in Keycloak
    - `code_challenge` - the computed code challenge
    - `code_challenge_method` - the hashing method of the code challenge
+
 4. The seller's browser redirects to Keycloak authorization endpoint
 5. Keycloak shows the seller the login page to authenticate them
 6. The seller successfully authenticates as a Wallapop user through Keycloak
 7. Keycloak redirects the seller to Portal Hero with the authorization code
-   ```
+
+   ```bash
    GET /redirection-uri
    Query params:
    state: haeMd6UffZpxLDRWkNbAMW
@@ -119,11 +126,13 @@ Flow details:
    iss: http://localhost:9090/realms/wallapop-connect
    code: 0d40629c-89f8-4eca-ba36-35ef81682e67.9c296d6e-1353-43ab-91ec-d8df10532938.ffd2a2ce-d2b7-4ebd-ac3a-a3f2a6a96a46
    ```
+
    - `state` - An opaque value that is used for preventing cross-site request forgery.
-   - `session_state` - A string that represents the End-User's login state. This is REQUIRED if session management 
-   is supported.
+   - `session_state` - A string that represents the End-User's login state. This is REQUIRED if session management
+     is supported.
    - `iss` - issuer of the authorization code (in this case, Keycloak)
    - `code` - the authorization code
+
 8. The seller's browser redirects to Portal Hero
 9. Portal Hero exchange the authorization code for the access and refresh tokens (including PKCE code verifier)
 10. Keycloak returns both access and refresh tokens to Portal Hero
