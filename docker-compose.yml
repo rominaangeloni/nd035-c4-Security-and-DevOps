@@ -1,6 +1,6 @@
 services:
   monolith-users-database:
-    image: mysql:8.4
+    image: ${ECR}mysql:8.4
     container_name: monolith-users-database
     ports:
       - "3306:3306"
@@ -12,7 +12,7 @@ services:
       - ./scripts/users-database/create-test-monolith-db-users.sql:/docker-entrypoint-initdb.d/setup.sql
 
   auth-users-database:
-    image: mysql:8.4
+    image: ${ECR}mysql:8.4
     container_name: auth-users-database
     ports:
       - "3307:3307"
@@ -25,7 +25,7 @@ services:
       - ./scripts/users-database/create-test-auth-db-users.sql:/docker-entrypoint-initdb.d/setup.sql
 
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0.2
+    image: ${ECR}quay.io/keycloak/keycloak:25.0.2
     container_name: keycloak
     security_opt:
       - seccomp:unconfined
@@ -71,7 +71,7 @@ services:
       - ./extensions/monolith-users/conf/quarkus.properties:/opt/keycloak/conf/quarkus.properties
 
   keycloak-db:
-    image: postgres:15.3
+    image: ${ECR}postgres:15.3
     container_name: keycloak-db
     ports:
       - "5432:5432"
@@ -86,7 +86,7 @@ services:
     restart: unless-stopped
 
   selenium:
-    image: seleniarm/standalone-chromium
+    image: ${ECR}seleniarm/standalone-chromium
     container_name: selenium
     ports:
       - "4444:4444"

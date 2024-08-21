@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    ECR: "567828013335.dkr.ecr.eu-west-1.amazonaws.com"
+    ECR: "567828013335.dkr.ecr.eu-west-1.amazonaws.com/"
     PROJECT: "iam"
     SERVICE: "iam-keycloak"
     S3_BUCKET: "wallapop-trigger-link-cicd"
@@ -17,7 +17,7 @@ phases:
       - GIT_COMMIT=$CODEBUILD_RESOLVED_SOURCE_VERSION
       - GIT_BRANCH=$(git branch --format='%(refname:lstrip=-1) %(objectname)' | grep -E -v '(no branch|detached at)' | grep $GIT_COMMIT | head -n1 | cut -f1 -d' ')
       - GIT_BRANCH_NORMALIZED=$(echo $GIT_BRANCH | sed 's/\//-/g')
-      - DOCKER_URI="${ECR}/${SERVICE}"
+      - DOCKER_URI="${ECR}${SERVICE}"
     finally:
       - echo "GIT_COMMIT => "$GIT_COMMIT
       - echo "GIT_BRANCH => "$GIT_BRANCH
@@ -45,7 +45,7 @@ phases:
       - ./keycloak/tests/gradlew -p keycloak/tests clean build
 
       # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
-      - docker run -v "$PWD":/code -w /code ${ECR}/cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml
+      - docker run -v "$PWD":/code -w /code ${ECR}cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml
       - docker build -f infrastructure/docker/Dockerfile -t ${SERVICE}:current --build-arg ECR=${ECR} .
   post_build:
     commands:
