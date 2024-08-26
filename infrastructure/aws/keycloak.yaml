@@ -52,7 +52,7 @@ Mappings:
       prod: 3
       beta: 2
     MaxCapacity:
-      prod: 3
+      prod: 4
       beta: 2
 
 Conditions:
@@ -299,7 +299,7 @@ Resources:
       ServiceName: !Ref ServiceName
       DeploymentConfiguration:
         MinimumHealthyPercent: 100
-        MaximumPercent: 200
+        MaximumPercent: 134
       TaskDefinition: !Ref TaskDefinition
       DesiredCount: !FindInMap [ Task, DesiredCapacity, !Ref Environment ]
       NetworkConfiguration:
