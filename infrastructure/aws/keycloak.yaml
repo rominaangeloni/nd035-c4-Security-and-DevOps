@@ -74,6 +74,17 @@ Resources:
         PasswordLength: 30
         ExcludeCharacters: '"@/\'
 
+  KeycloakSellersXpDatabaseUserSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/rds/${ServiceName}/sellers-xp"
+      Description: Secrets for sellers-xp user in Keycloak Database
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "sellers_xp"}'
+        GenerateStringKey: "password"
+        PasswordLength: 30
+        ExcludeCharacters: '"@/\'
+
   KeycloakDatabaseUserSecrets:
     Type: AWS::SecretsManager::Secret
     Properties:
