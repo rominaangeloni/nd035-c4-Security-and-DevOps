@@ -47,13 +47,20 @@ Mappings:
       beta: 1024
     DesiredCapacity:
       prod: 3
-      beta: 2
+      beta: 1
     MinCapacity:
       prod: 3
-      beta: 2
+      beta: 1
     MaxCapacity:
       prod: 4
-      beta: 2
+      beta: 1
+    MinimumHealthyPercent:
+      prod: 100
+      beta: 100
+    MaximumPercent:
+      prod: 134
+      beta: 200
+    
 
 Conditions:
   IsProdEnvironment: !Equals [ !Ref Environment, 'prod']
@@ -309,8 +316,8 @@ Resources:
       Cluster: !Ref Environment
       ServiceName: !Ref ServiceName
       DeploymentConfiguration:
-        MinimumHealthyPercent: 100
-        MaximumPercent: 134
+        MinimumHealthyPercent: !FindInMap [ Task, MinimumHealthyPercent, !Ref Environment ]
+        MaximumPercent: !FindInMap [ Task, MaximumPercent, !Ref Environment ]
       TaskDefinition: !Ref TaskDefinition
       DesiredCount: !FindInMap [ Task, DesiredCapacity, !Ref Environment ]
       NetworkConfiguration:
