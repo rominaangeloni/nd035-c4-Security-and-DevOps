@@ -1043,7 +1043,7 @@ Resources:
       ComparisonOperator: GreaterThanUpperThreshold
       EvaluationPeriods: 1
       Metrics:
-        - Expression: ANOMALY_DETECTION_BAND(ratio, 2)
+        - Expression: ANOMALY_DETECTION_BAND(ratio, 11)
           Id: ad1
         - Id: ratio
           Label: "3XX percentage"
