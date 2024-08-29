@@ -203,13 +203,11 @@ Resources:
               Value: true
             # Logging
             - Name: KC_LOG
-              Value: console,syslog
+              Value: console,file
             - Name: KC_LOG_LEVEL
               Value: INFO,org.keycloak.events:DEBUG
-            - Name: KC_LOG_SYSLOG_OUTPUT
+            - Name: KC_LOG_FILE_OUTPUT
               Value: json
-            - Name: KC_LOG_SYSLOG_ENDPOINT
-              Value: !Sub "logging-platform-collector.wallapop.${Environment}:5140"
             # Keycloak features
             - Name: KC_FEATURES
               Value: persistent-user-sessions
@@ -268,6 +266,14 @@ Resources:
               Value: !Ref Environment
             - Name: KEYCLOAK_HOST
               Value: localhost
+        - Name: tdagent
+          Image: fluent/fluentd:v0.12
+          Essential: false
+          VolumesFrom:
+            - SourceContainer: !Ref ServiceName
+          Environment:
+            - Name: ENV
+              Value: !Ref Environment
 
   TaskRole:
     Type: AWS::IAM::Role

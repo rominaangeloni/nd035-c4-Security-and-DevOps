@@ -3,6 +3,12 @@ FROM quay.io/keycloak/keycloak:25.0.2
 COPY infrastructure/docker/telegraf.conf /etc/telegraf/telegraf.conf
 VOLUME /etc/telegraf
 
+RUN mkdir -p /opt/keycloak/data/log
+
+COPY infrastructure/docker/fluentd.conf /fluentd/etc/fluent.conf
+VOLUME /fluentd/etc
+VOLUME /opt/keycloak/data/log
+
 COPY infrastructure/docker/quarkus.properties /opt/keycloak/conf/
 COPY infrastructure/docker/monolith-users.jar /opt/keycloak/providers/
 COPY infrastructure/docker/access-token-mapper.jar /opt/keycloak/providers/
