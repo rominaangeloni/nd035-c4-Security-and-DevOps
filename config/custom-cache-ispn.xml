@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2019 Red Hat, Inc. and/or its affiliates
+  ~ and other contributors as indicated by the @author tags.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<infinispan
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:infinispan:config:15.0 http://www.infinispan.org/schemas/infinispan-config-15.0.xsd"
+        xmlns="urn:infinispan:config:15.0">
+
+    <jgroups>
+        <stack name="custom-ec2">
+            <!-- jgroups.tcp.address is deprecated and will be removed, see ISPN-11867 -->
+            <TCP bind_addr="${jgroups.bind.address,jgroups.tcp.address:SITE_LOCAL}"
+                 bind_port="${jgroups.bind.port,jgroups.tcp.port:7800}"
+                 diag.enabled="${jgroups.diag.enabled:false}"
+                 thread_naming_pattern="pl"
+                 send_buf_size="640k"
+                 sock_conn_timeout="300"
+                 linger="${jgroups.tcp.linger:-1}"
+                 bundler_type="${jgroups.bundler.type:transfer-queue}"
+                 bundler.max_size="${jgroups.bundler.max_size:64000}"
+                 non_blocking_sends="${jgroups.non_blocking_sends:false}"
+
+                 thread_pool.min_threads="${jgroups.thread_pool.min_threads:0}"
+                 thread_pool.max_threads="${jgroups.thread_pool.max_threads:200}"
+                 thread_pool.keep_alive_time="60000"
+
+                 thread_pool.thread_dumps_threshold="${jgroups.thread_dumps_threshold:10000}"
+                 use_virtual_threads="${jgroups.thread.virtual,org.infinispan.threads.virtual:false}"
+            />
+            <RED/>
+            <aws.S3_PING region_name="${jgroups.s3.region_name}"
+                         bucket_name="${jgroups.s3.bucket_name}"
+                         num_discovery_runs="3"
+                         remove_all_data_on_view_change="true"
+                         remove_old_coords_on_view_change="true"
+            />
+            <MERGE3 min_interval="10000"
+                    max_interval="30000"
+            />
+            <FD_SOCK2 offset="${jgroups.fd.port-offset:50000}"/>
+            <FD_ALL3/>
+            <VERIFY_SUSPECT2 timeout="1000"/>
+            <pbcast.NAKACK2 use_mcast_xmit="false"
+                            xmit_interval="200"
+                            xmit_table_num_rows="50"
+                            xmit_table_msgs_per_row="1024"
+                            xmit_table_max_compaction_time="30000"
+                            resend_last_seqno="true"
+            />
+            <UNICAST3 conn_close_timeout="5000"
+                      xmit_interval="200"
+                      xmit_table_num_rows="50"
+                      xmit_table_msgs_per_row="1024"
+                      xmit_table_max_compaction_time="30000"
+            />
+            <pbcast.STABLE desired_avg_gossip="5000"
+                           max_bytes="1M"
+            />
+            <pbcast.GMS print_local_addr="false"
+                        join_timeout="${jgroups.join_timeout:2000}"
+            />
+            <UFC max_credits="${jgroups.max_credits:4m}"
+                 min_threshold="0.40"
+            />
+            <MFC max_credits="${jgroups.max_credits:4m}"
+                 min_threshold="0.40"
+            />
+            <FRAG4 frag_size="${jgroups.frag_size:60000}"/>
+        </stack>
+    </jgroups>
+
+    <cache-container name="keycloak">
+        <transport lock-timeout="60000" stack="custom-ec2"/>
+        <local-cache name="realms" simple-cache="true">
+            <encoding>
+                <key media-type="application/x-java-object"/>
+                <value media-type="application/x-java-object"/>
+            </encoding>
+            <memory max-count="10000"/>
+        </local-cache>
+        <local-cache name="users" simple-cache="true">
+            <encoding>
+                <key media-type="application/x-java-object"/>
+                <value media-type="application/x-java-object"/>
+            </encoding>
+            <memory max-count="10000"/>
+        </local-cache>
+        <distributed-cache name="sessions" owners="2">
+            <expiration lifespan="-1"/>
+        </distributed-cache>
+        <distributed-cache name="authenticationSessions" owners="2">
+            <expiration lifespan="-1"/>
+        </distributed-cache>
+        <distributed-cache name="offlineSessions" owners="2">
+            <expiration lifespan="-1"/>
+        </distributed-cache>
+        <distributed-cache name="clientSessions" owners="2">
+            <expiration lifespan="-1"/>
+        </distributed-cache>
+        <distributed-cache name="offlineClientSessions" owners="2">
+            <expiration lifespan="-1"/>
+        </distributed-cache>
+        <distributed-cache name="loginFailures" owners="2">
+            <expiration lifespan="-1"/>
+        </distributed-cache>
+        <local-cache name="authorization" simple-cache="true">
+            <encoding>
+                <key media-type="application/x-java-object"/>
+                <value media-type="application/x-java-object"/>
+            </encoding>
+            <memory max-count="10000"/>
+        </local-cache>
+        <replicated-cache name="work">
+            <expiration lifespan="-1"/>
+        </replicated-cache>
+        <local-cache name="keys" simple-cache="true">
+            <encoding>
+                <key media-type="application/x-java-object"/>
+                <value media-type="application/x-java-object"/>
+            </encoding>
+            <expiration max-idle="3600000"/>
+            <memory max-count="1000"/>
+        </local-cache>
+        <distributed-cache name="actionTokens" owners="2">
+            <encoding>
+                <key media-type="application/x-java-object"/>
+                <value media-type="application/x-java-object"/>
+            </encoding>
+            <expiration max-idle="-1" lifespan="-1" interval="300000"/>
+            <memory max-count="-1"/>
+        </distributed-cache>
+    </cache-container>
+</infinispan>
