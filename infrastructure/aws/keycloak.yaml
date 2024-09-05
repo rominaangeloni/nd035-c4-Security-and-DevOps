@@ -991,7 +991,7 @@ Resources:
       AlarmDescription: !Sub "HTTP 5XX Ratio too high in ${Project} (Hard)"
       AlarmName: !Sub "${ServiceName}-api_5xx-too-high-hard"
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 3
+      EvaluationPeriods: 2
       Metrics:
         - Id: ratio
           Label: "5XX percentage"
@@ -1005,7 +1005,7 @@ Resources:
                   Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
               MetricName: HTTPCode_Target_5XX_Count
               Namespace: AWS/ApplicationELB
-            Period: 60
+            Period: 900
             Stat: Sum
           ReturnData: False
         - Id: elb5xxcount
@@ -1017,7 +1017,7 @@ Resources:
                   Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
               MetricName: HTTPCode_ELB_5XX_Count
               Namespace: AWS/ApplicationELB
-            Period: 60
+            Period: 900
             Stat: Sum
           ReturnData: False
         - Id: requestcount
@@ -1029,10 +1029,10 @@ Resources:
                   Value: !GetAtt PublicLoadBalancer.LoadBalancerFullName
               MetricName: RequestCount
               Namespace: AWS/ApplicationELB
-            Period: 60
+            Period: 900
             Stat: Sum
           ReturnData: False
-      Threshold: 5.0
+      Threshold: 50.0
       TreatMissingData: "notBreaching"
 
   PublicAlb3XXRatioSoftAlarm:
