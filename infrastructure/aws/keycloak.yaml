@@ -837,7 +837,7 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Condition: IsProdEnvironment
     Properties:
-      AlarmName: !Sub "${Project}-api_latency-too-high-soft"
+      AlarmName: !Sub "${ServiceName}-api_latency-too-high-soft"
       Namespace: AWS/ApplicationELB
       MetricName: TargetResponseTime
       ExtendedStatistic: p90
@@ -858,7 +858,7 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Condition: IsProdEnvironment
     Properties:
-      AlarmName: !Sub "${Project}-api_latency-too-high-hard"
+      AlarmName: !Sub "${ServiceName}-api_latency-too-high-hard"
       Namespace: AWS/ApplicationELB
       MetricName: TargetResponseTime
       ExtendedStatistic: p90
@@ -883,7 +883,7 @@ Resources:
         - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       OKActions:
         - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
-      AlarmName: !Sub "${Project}-api_unhealthy-hosts-too-high-soft"
+      AlarmName: !Sub "${ServiceName}-api_unhealthy-hosts-too-high-soft"
       AlarmDescription: !Sub "Unhealthy host count is above threshold in ${Project}-api (Soft)"
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
@@ -907,7 +907,7 @@ Resources:
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       OKActions:
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
-      AlarmName: !Sub "${Project}-api_unhealthy-hosts-too-high-hard"
+      AlarmName: !Sub "${ServiceName}-api_unhealthy-hosts-too-high-hard"
       AlarmDescription: !Sub "Unhealthy host count is above threshold in ${Project}-api (Hard)"
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
@@ -933,7 +933,7 @@ Resources:
       OKActions:
         - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       AlarmDescription: !Sub "HTTP 5XX Ratio too high in ${Project} (Soft)"
-      AlarmName: !Sub "${Project}-api_5xx-too-high-soft"
+      AlarmName: !Sub "${ServiceName}-api_5xx-too-high-soft"
       ComparisonOperator: GreaterThanOrEqualToThreshold
       EvaluationPeriods: 3
       Metrics:
@@ -989,7 +989,7 @@ Resources:
       OKActions:
         - Fn::ImportValue: !Sub "${Project}-hard-alarms-topic"
       AlarmDescription: !Sub "HTTP 5XX Ratio too high in ${Project} (Hard)"
-      AlarmName: !Sub "${Project}-api_5xx-too-high-hard"
+      AlarmName: !Sub "${ServiceName}-api_5xx-too-high-hard"
       ComparisonOperator: GreaterThanOrEqualToThreshold
       EvaluationPeriods: 3
       Metrics:
@@ -1045,7 +1045,7 @@ Resources:
       OKActions:
         - Fn::ImportValue: !Sub "${Project}-soft-alarms-topic-arn-${Environment}"
       AlarmDescription: !Sub "HTTP 3XX Ratio too high in ${Project} sign-in is probably broken caused by Infinispan inconsistent state (Soft)"
-      AlarmName: !Sub "${Project}-api_3xx-too-high-soft"
+      AlarmName: !Sub "${ServiceName}-api_3xx-too-high-soft"
       ComparisonOperator: GreaterThanUpperThreshold
       EvaluationPeriods: 1
       Metrics:
