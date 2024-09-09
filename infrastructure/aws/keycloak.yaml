@@ -205,7 +205,7 @@ Resources:
             - Name: KC_LOG
               Value: console,file
             - Name: KC_LOG_LEVEL
-              Value: INFO,org.keycloak.events:DEBUG
+              Value: INFO,org.keycloak.events:DEBUG,org.infinispan:DEBUG,org.jgroups:DEBUG
             - Name: KC_LOG_FILE_OUTPUT
               Value: json
             # Keycloak features
