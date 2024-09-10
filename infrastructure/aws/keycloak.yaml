@@ -185,10 +185,6 @@ Resources:
           PortMappings:
             - ContainerPort: 8080
             - ContainerPort: 9000
-          EntryPoint:
-              - sh
-              - "-c"
-              - /opt/keycloak/bin/kc.sh start --import-realm
           Environment:
             # HTTP
             - Name: KC_HTTP_PORT

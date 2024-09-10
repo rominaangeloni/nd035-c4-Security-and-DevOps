@@ -16,6 +16,7 @@ COPY infrastructure/docker/fluentd.conf /fluentd/etc/fluent.conf
 VOLUME /fluentd/etc
 VOLUME /opt/keycloak/data/log
 
+# Keycloak Extensions
 COPY infrastructure/docker/quarkus.properties /opt/keycloak/conf/
 COPY infrastructure/docker/monolith-users.jar /opt/keycloak/providers/
 COPY infrastructure/docker/access-token-mapper.jar /opt/keycloak/providers/
@@ -23,3 +24,7 @@ COPY infrastructure/docker/jgroups-aws-bundle.jar /opt/keycloak/providers/
 COPY infrastructure/docker/realm.json /opt/keycloak/data/import/realm.json
 COPY infrastructure/docker/themes/ /opt/keycloak/themes/
 COPY infrastructure/docker/custom-cache-ispn.xml /opt/keycloak/conf/
+
+COPY infrastructure/docker/entrypoint.sh /opt/keycloak/bin/entrypoint.sh
+ENTRYPOINT ["/opt/keycloak/bin/entrypoint.sh"]
+CMD ["/opt/keycloak/bin/kc.sh", "start", "--import-realm"]

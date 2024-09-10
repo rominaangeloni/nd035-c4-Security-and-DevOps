@@ -6,24 +6,8 @@
     <version>1.0.0</version>
 
     <properties>
-        <aws.sdk.version>1.12.750</aws.sdk.version>
         <jgroups.aws.version>3.0.0.Final</jgroups.aws.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-core</artifactId>
-                <version>${aws.sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
-                <version>${aws.sdk.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
