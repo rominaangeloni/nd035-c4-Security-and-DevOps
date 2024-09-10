@@ -216,7 +216,7 @@ Resources:
             - Name: KC_CACHE
               Value: ispn
             - Name: KC_CACHE_CONFIG_FILE
-              Value: custom-cache-ispn.xml
+              Value: cache-ispn.xml
             - Name: JAVA_TOOL_OPTIONS
               Value: !Sub "-Djgroups.s3.region_name=${AWS::Region} -Djgroups.s3.bucket_name=${InfinispanS3DiscoveryBucketName}-${Environment}"
             # Databases

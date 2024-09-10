@@ -33,7 +33,7 @@ phases:
       - cp extensions/jgroups-aws-bundle/target/jgroups-aws-bundle-jar-with-dependencies.jar infrastructure/docker/jgroups-aws-bundle.jar
       - cp config/realm.json infrastructure/docker
       - cp -r config/themes infrastructure/docker
-      - cp config/custom-cache-ispn.xml infrastructure/docker
+      - cp config/cache-ispn.xml infrastructure/docker
 
       # add keycloak hostname for integration tests
       - echo "127.0.0.1 keycloak" >> /etc/hosts
