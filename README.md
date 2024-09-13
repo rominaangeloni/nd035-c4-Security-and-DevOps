@@ -12,7 +12,7 @@ Identity and access manager (Keycloak)
 127.0.0.1 keycloak
 ```
 
-1- Execute init dev script `./extensions/build.sh`
+1- Execute init dev script `./keycloak/extensions/build.sh`
 
 2- Run docker compose
 
