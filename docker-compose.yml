@@ -9,7 +9,7 @@ services:
       MYSQL_DATABASE: monolith
     volumes:
       - monolith-users-db:/var/lib/mysql-db/data
-      - ./scripts/users-database/create-test-monolith-db-users.sql:/docker-entrypoint-initdb.d/setup.sql
+      - ./keycloak/scripts/users-database/create-test-monolith-db-users.sql:/docker-entrypoint-initdb.d/setup.sql
 
   auth-users-database:
     image: ${ECR}mysql:8.4
@@ -22,7 +22,7 @@ services:
       MYSQL_TCP_PORT: 3307
     volumes:
       - auth-users-db:/var/lib/mysql-db/data
-      - ./scripts/users-database/create-test-auth-db-users.sql:/docker-entrypoint-initdb.d/setup.sql
+      - ./keycloak/scripts/users-database/create-test-auth-db-users.sql:/docker-entrypoint-initdb.d/setup.sql
 
   keycloak:
     image: ${ECR}quay.io/keycloak/keycloak:25.0.2
@@ -64,11 +64,11 @@ services:
       - selenium
     restart: unless-stopped
     volumes:
-      - ./config/realm.json:/opt/keycloak/data/import/realm.json
-      - ./config/themes:/opt/keycloak/themes/
-      - ./extensions/access-token-mapper/target/access-token-mapper.jar:/opt/keycloak/providers/access-token-mapper.jar
-      - ./extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar:/opt/keycloak/providers/monolith-users.jar
-      - ./extensions/monolith-users/conf/quarkus.properties:/opt/keycloak/conf/quarkus.properties
+      - ./keycloak/config/realm.json:/opt/keycloak/data/import/realm.json
+      - ./keycloak/config/themes:/opt/keycloak/themes/
+      - ./keycloak/extensions/access-token-mapper/target/access-token-mapper.jar:/opt/keycloak/providers/access-token-mapper.jar
+      - ./keycloak/extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar:/opt/keycloak/providers/monolith-users.jar
+      - ./keycloak/extensions/monolith-users/conf/quarkus.properties:/opt/keycloak/conf/quarkus.properties
 
   keycloak-db:
     image: ${ECR}postgres:15.3

@@ -30,7 +30,7 @@ oauth2c "http://localhost:9090/realms/wallapop-connect" \
 --response-mode query
 ```
 
-You can log in with users created automatically from dev [script](scripts/users-database/test-users-setup.sql)
+You can log in with users created automatically from dev [script](keycloak/scripts/users-database/test-users-setup.sql)
 
 # Flows
 

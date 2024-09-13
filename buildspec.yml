@@ -14,40 +14,34 @@ phases:
   pre_build:
     commands:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR
+
       - GIT_COMMIT=$CODEBUILD_RESOLVED_SOURCE_VERSION
       - GIT_BRANCH=$(git branch --format='%(refname:lstrip=-1) %(objectname)' | grep -E -v '(no branch|detached at)' | grep $GIT_COMMIT | head -n1 | cut -f1 -d' ')
       - GIT_BRANCH_NORMALIZED=$(echo $GIT_BRANCH | sed 's/\//-/g')
       - DOCKER_URI="${ECR}${SERVICE}"
-    finally:
-      - echo "GIT_COMMIT => "$GIT_COMMIT
-      - echo "GIT_BRANCH => "$GIT_BRANCH
-  build:
-    commands:
-      # Keycloak extensions
-      - cp extensions/monolith-users/conf/quarkus.properties infrastructure/docker
-      - mvn -f extensions/monolith-users/pom.xml clean install
-      - cp extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar infrastructure/docker/monolith-users.jar
-      - mvn -f extensions/access-token-mapper/pom.xml clean install
-      - cp extensions/access-token-mapper/target/access-token-mapper.jar infrastructure/docker/access-token-mapper.jar
-      - mvn -f extensions/jgroups-aws-bundle/pom.xml clean install
-      - cp extensions/jgroups-aws-bundle/target/jgroups-aws-bundle-jar-with-dependencies.jar infrastructure/docker/jgroups-aws-bundle.jar
-      - cp config/realm.json infrastructure/docker
-      - cp -r config/themes infrastructure/docker
-      - cp config/cache-ispn.xml infrastructure/docker
 
       # add keycloak hostname for integration tests
       - echo "127.0.0.1 keycloak" >> /etc/hosts
       - echo "keycloak hostname was added successfully - $(grep keycloak /etc/hosts)"
 
+      # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
+      - docker run -v "$PWD":/code -w /code ${ECR}cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml
+    finally:
+      - echo "GIT_COMMIT => "$GIT_COMMIT
+      - echo "GIT_BRANCH => "$GIT_BRANCH
+  build:
+    commands:
+      # Keycloak extensions and Docker image
+      - mvn -f keycloak/extensions/monolith-users/pom.xml clean install
+      - mvn -f keycloak/extensions/access-token-mapper/pom.xml clean install
+      - mvn -f keycloak/extensions/jgroups-aws-bundle/pom.xml clean install
+      - docker build -f infrastructure/docker/Dockerfile -t ${SERVICE}:current --build-arg ECR=${ECR} .
+
       # Keycloak tests
-      - docker-compose up -d # TODO: try to use ECR
+      - docker-compose up -d
       - ./infrastructure/buildspec/await_keycloak.sh
       - docker container ls -a
       - ./keycloak/tests/gradlew -p keycloak/tests clean build
-
-      # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
-      - docker run -v "$PWD":/code -w /code ${ECR}cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml
-      - docker build -f infrastructure/docker/Dockerfile -t ${SERVICE}:current --build-arg ECR=${ECR} .
   post_build:
     commands:
       - docker-compose logs
