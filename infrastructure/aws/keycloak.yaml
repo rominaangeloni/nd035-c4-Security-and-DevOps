@@ -147,6 +147,17 @@ Resources:
         PasswordLength: 32
         ExcludePunctuation: true
 
+  KeycloakInventarioProClientSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client/inventario-pro"
+      Description: Secrets for the Keycloak's inventario-pro secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{}'
+        GenerateStringKey: "secret"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
   InfinispanS3DiscoveryBucket:
     Type: AWS::S3::Bucket
     Properties:
