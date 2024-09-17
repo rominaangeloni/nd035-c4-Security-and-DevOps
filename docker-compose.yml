@@ -57,6 +57,7 @@ services:
       - AUTH_DB_URL=jdbc:mysql://auth-users-database:3307/auth?isReadOnly=true
       - PORTAL_HERO_SECRET=dSGJlZFLlIZN2ZCIXeW0lAWuq5bnzxHI
       - GEEK_MARKET_SECRET=KFVIMtIomC2vgIyUGb4ghhBgpHSRFcbD
+      - INVENTARIO_PRO_SECRET=Q2CTUVOevUpl5t5t6NghzZftkGIgUOZE
     depends_on:
       - monolith-users-database
       - auth-users-database
