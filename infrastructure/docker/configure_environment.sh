@@ -7,11 +7,11 @@ get_task_id() {
 }
 
 replace_task_id_in_fluent_config() {
-  sed -i "s#<TASK_ID>#$TASK_ID#g" /fluentd/etc/fluent.conf
+  sed -i -e "s#<TASK_ID>#$TASK_ID#g" /fluentd/etc/fluent.conf
 }
 
 replace_task_id_in_telegraf_config() {
-  sed -i "s#<TASK_ID>#$TASK_ID#g" /etc/telegraf/telegraf.conf
+  sed -i -e "s#<TASK_ID>#$TASK_ID#g" /etc/telegraf/telegraf.conf
 }
 
 get_task_id
