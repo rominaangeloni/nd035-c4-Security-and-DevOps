@@ -16,9 +16,6 @@ COPY infrastructure/docker/fluentd.conf /fluentd/etc/fluent.conf
 VOLUME /fluentd/etc
 VOLUME /opt/keycloak/data/log
 
-COPY ./infrastructure/docker/configure_environment.sh .
-CMD source ./configure_environment.sh;
-
 # Keycloak config
 COPY keycloak/config/themes /opt/keycloak/themes/
 COPY keycloak/config/cache-ispn.xml /opt/keycloak/conf/
