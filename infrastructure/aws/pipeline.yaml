@@ -141,6 +141,24 @@ Resources:
                     "DockerImageUri": { "Fn::GetParam" : ["App", "info.json", "docker"]},
                     "ClusterPartition": "/ecs/${Environment}/iam-keycloak/partition"
                   }
+            - Name: WebApplicationFirewall
+              RunOrder: 2
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: "1"
+                Provider: CloudFormation
+              InputArtifacts: [ Name: App ]
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_NAMED_IAM
+                StackName: !Sub ${Project}-keycloak-web-application-firewall-${Environment}
+                RoleArn:
+                  Fn::ImportValue: manage-serverless-stack-role
+                TemplatePath: App::infrastructure/aws/web-application-firewall.yaml
+                TemplateConfiguration: !Sub App::infrastructure/aws/web-application-firewall_conf_${Environment}.json
+                ParameterOverrides: !Sub |
+                  { "Environment": "${Environment}" }
   EventRule:
     Type: AWS::Events::Rule
     Properties:

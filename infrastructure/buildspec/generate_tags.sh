@@ -69,4 +69,5 @@ do
   generate_configuration "keycloak" $env "service"
   generate_configuration "database" $env "database"
   generate_configuration_from_template "alarms-topics" $env "service"
+  generate_configuration_from_template "web-application-firewall" $env "service"
 done

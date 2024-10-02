@@ -1100,3 +1100,10 @@ Resources:
       ToPort: 3306
       IpProtocol: tcp
       Description: !Sub "Allow access from ${ServiceName}"
+
+Outputs:
+  PublicLoadBalancerArn:
+    Description: Keycloak public load balancer
+    Value: !Ref PublicLoadBalancer
+    Export:
+      Name: !Sub "${ServiceName}-public-load-balancer-${Environment}"

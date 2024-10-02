@@ -1,0 +1,170 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: |
+  Web application firewall for IAM public load balancer
+
+Parameters:
+  ServiceName:
+    Type: String
+    Default: iam-keycloak
+    AllowedValues: [ iam-keycloak ]
+  Environment:
+    Description: 'Environment where it has to be deployed'
+    Type: String
+  WebApplicationFirewallGlobalRateLimit:
+    Description: 'The limit on requests per 5-minute period for a single aggregation instance for the rate-based rule'
+    Type: Number
+    Default: 174
+
+Resources:
+  WebACLAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      ResourceArn:
+        Fn::ImportValue: !Sub "${ServiceName}-public-load-balancer-${Environment}"
+      WebACLArn: !GetAtt WebApplicationFirewall.Arn
+
+  WebApplicationFirewall:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: !Sub "${ServiceName}-web-application-firewall"
+      Description: WAF for IAM public ALB
+      DefaultAction:
+        Allow: {}
+      Scope: REGIONAL
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: true
+        MetricName: !Sub "${ServiceName}-web-application-firewall-metrics"
+        SampledRequestsEnabled: true
+      Rules:
+        - Name: !Sub "${ServiceName}-waf-global-rate-limit-rule"
+          Action:
+            Block: { }
+          Priority: 0
+          Statement:
+            RateBasedStatement:
+              AggregateKeyType: IP
+              Limit: !Ref WebApplicationFirewallGlobalRateLimit
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub "${ServiceName}-waf-global-rate-limit-rule-metric"
+            SampledRequestsEnabled: true
+        - Name: !Sub "${ServiceName}-waf-invalid-uris-rule"
+          Action:
+            Block: { }
+          Priority: 1
+          Statement:
+            AndStatement:
+              Statements:
+                - NotStatement:
+                    Statement:
+                      RegexMatchStatement:
+                        FieldToMatch:
+                          UriPath: {}
+                        RegexString: "^/realms/.*"
+                        TextTransformations:
+                          - Priority: 0
+                            Type: NONE
+                - NotStatement:
+                    Statement:
+                      RegexMatchStatement:
+                        FieldToMatch:
+                          UriPath: { }
+                        RegexString: "^/resources/.*"
+                        TextTransformations:
+                          - Priority: 0
+                            Type: NONE
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub "${ServiceName}-waf-invalid-uris-rule-metric"
+            SampledRequestsEnabled: true
+        - Name: !Sub "${ServiceName}-waf-aws-managed-common-rule-set"
+          Priority: 2
+          OverrideAction:
+            None: { }
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub "${ServiceName}-waf-aws-managed-common-rule-set-metric"
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+              RuleActionOverrides:
+                - Name: EC2MetaDataSSRF_BODY
+                  ActionToUse:
+                    Count: {}
+                - Name: EC2MetaDataSSRF_QUERYARGUMENTS
+                  ActionToUse:
+                    Count: {}
+                - Name: CrossSiteScripting_BODY
+                  ActionToUse:
+                    Block: { }
+                - Name: CrossSiteScripting_COOKIE
+                  ActionToUse:
+                    Block: { }
+                - Name: CrossSiteScripting_QUERYARGUMENTS
+                  ActionToUse:
+                    Block: { }
+                - Name: CrossSiteScripting_URIPATH
+                  ActionToUse:
+                    Block: { }
+                - Name: EC2MetaDataSSRF_COOKIE
+                  ActionToUse:
+                    Block: { }
+                - Name: EC2MetaDataSSRF_URIPATH
+                  ActionToUse:
+                    Block: { }
+                - Name: GenericLFI_BODY
+                  ActionToUse:
+                    Block: { }
+                - Name: GenericLFI_QUERYARGUMENTS
+                  ActionToUse:
+                    Block: { }
+                - Name: GenericLFI_URIPATH
+                  ActionToUse:
+                    Block: { }
+                - Name: GenericRFI_BODY
+                  ActionToUse:
+                    Block: { }
+                - Name: GenericRFI_QUERYARGUMENTS
+                  ActionToUse:
+                    Block: { }
+                - Name: GenericRFI_URIPATH
+                  ActionToUse:
+                    Block: { }
+                - Name: NoUserAgent_HEADER
+                  ActionToUse:
+                    Block: { }
+                - Name: RestrictedExtensions_QUERYARGUMENTS
+                  ActionToUse:
+                    Block: { }
+                - Name: RestrictedExtensions_URIPATH
+                  ActionToUse:
+                    Block: { }
+                - Name: SizeRestrictions_BODY
+                  ActionToUse:
+                    Block: { }
+                - Name: SizeRestrictions_Cookie_HEADER
+                  ActionToUse:
+                    Block: { }
+                - Name: SizeRestrictions_QUERYSTRING
+                  ActionToUse:
+                    Block: { }
+                - Name: SizeRestrictions_URIPATH
+                  ActionToUse:
+                    Block: { }
+                - Name: UserAgent_BadBots_HEADER
+                  ActionToUse:
+                    Block: { }
+        - Name: !Sub "${ServiceName}-waf-ddos-attackers-ip-list-rule"
+          Priority: 3
+          Action:
+            Block: { }
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub "${ServiceName}-waf-ddos-attackers-ip-list-rule-metric"
+          Statement:
+            LabelMatchStatement:
+              Scope: LABEL
+              Key: 'awswaf:managed:aws:amazon-ip-list:AWSManagedIPDDoSList'
