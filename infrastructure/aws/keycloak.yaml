@@ -158,6 +158,17 @@ Resources:
         PasswordLength: 32
         ExcludePunctuation: true
 
+  KeycloakIwakyProClientSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client/iwaky"
+      Description: Secrets for the Keycloak's Iwaky secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{}'
+        GenerateStringKey: "secret"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
   InfinispanS3DiscoveryBucket:
     Type: AWS::S3::Bucket
     Properties:
