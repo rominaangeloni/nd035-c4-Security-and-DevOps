@@ -275,6 +275,8 @@ Resources:
               ValueFrom: !Join [ ':', [ !Ref KeycloakGeekMarketClientSecret, 'secret::' ] ]
             - Name: INVENTARIO_PRO_SECRET
               ValueFrom: !Join [ ':', [ !Ref KeycloakInventarioProClientSecret, 'secret::' ] ]
+            - Name: IWAKY_SECRET
+              ValueFrom: !Join [ ':', [ !Ref KeycloakIwakyProClientSecret, 'secret::' ] ]
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
           StopTimeout: 120
         - Name: telegraf

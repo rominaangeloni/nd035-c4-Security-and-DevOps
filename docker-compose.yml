@@ -58,6 +58,7 @@ services:
       - PORTAL_HERO_SECRET=dSGJlZFLlIZN2ZCIXeW0lAWuq5bnzxHI
       - GEEK_MARKET_SECRET=KFVIMtIomC2vgIyUGb4ghhBgpHSRFcbD
       - INVENTARIO_PRO_SECRET=Q2CTUVOevUpl5t5t6NghzZftkGIgUOZE
+      - IWAKY_SECRET=7RjkQu89SOXC4xkhZNzPQVBkyk1zDWfP
     depends_on:
       - monolith-users-database
       - auth-users-database
