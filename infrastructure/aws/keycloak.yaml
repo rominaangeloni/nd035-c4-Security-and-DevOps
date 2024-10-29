@@ -169,6 +169,17 @@ Resources:
         PasswordLength: 32
         ExcludePunctuation: true
 
+  KeycloakMotorflashProClientSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client/motorflash"
+      Description: Secrets for the Keycloak's Motorflash secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{}'
+        GenerateStringKey: "secret"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
   InfinispanS3DiscoveryBucket:
     Type: AWS::S3::Bucket
     Properties:
