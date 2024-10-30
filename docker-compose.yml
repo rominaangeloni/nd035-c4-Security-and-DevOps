@@ -59,6 +59,7 @@ services:
       - GEEK_MARKET_SECRET=KFVIMtIomC2vgIyUGb4ghhBgpHSRFcbD
       - INVENTARIO_PRO_SECRET=Q2CTUVOevUpl5t5t6NghzZftkGIgUOZE
       - IWAKY_SECRET=7RjkQu89SOXC4xkhZNzPQVBkyk1zDWfP
+      - MOTORFLASH_SECRET=c484fd26e33760742d94ce2f3ab028b1
     depends_on:
       - monolith-users-database
       - auth-users-database

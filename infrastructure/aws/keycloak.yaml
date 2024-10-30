@@ -288,6 +288,8 @@ Resources:
               ValueFrom: !Join [ ':', [ !Ref KeycloakInventarioProClientSecret, 'secret::' ] ]
             - Name: IWAKY_SECRET
               ValueFrom: !Join [ ':', [ !Ref KeycloakIwakyProClientSecret, 'secret::' ] ]
+            - Name: MOTORFLASH_SECRET
+              ValueFrom: !Join [ ':', [ !Ref KeycloakMotorflashProClientSecret, 'secret::' ] ]
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
           StopTimeout: 120
         - Name: telegraf
