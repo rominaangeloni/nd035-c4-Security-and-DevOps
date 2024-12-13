@@ -40,7 +40,7 @@ Parameters:
 Mappings:
   Task:
     Memory:
-      prod: 2048
+      prod: 4096
       beta: 2048
     Cpu:
       prod: 1024
