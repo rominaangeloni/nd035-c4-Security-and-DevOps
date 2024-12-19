@@ -180,6 +180,17 @@ Resources:
         PasswordLength: 32
         ExcludePunctuation: true
 
+  KeycloakYupopClientSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client/yupop"
+      Description: Secrets for the Keycloak's Yupop secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{}'
+        GenerateStringKey: "secret"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
   InfinispanS3DiscoveryBucket:
     Type: AWS::S3::Bucket
     Properties:
