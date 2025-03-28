@@ -1821,6 +1821,7 @@
   "eventsEnabled": true,
   "eventsExpiration": 1296000,
   "eventsListeners": [
+    "api-connect-event-listener",
     "jboss-logging"
   ],
   "enabledEventTypes": [
