@@ -191,6 +191,23 @@ Resources:
         PasswordLength: 32
         ExcludePunctuation: true
 
+  KeycloakRabbitMqSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/rabbitmq/application"
+      Description: "IAM RabbitMQ credentials"
+      GenerateSecretString:
+        SecretStringTemplate:
+          !Sub '{"user": "iam", "virtual-host": "wallapop", "host": "rabbitmq.wallapop.${Environment}", "port": 5672}'
+        GenerateStringKey: "password"
+        PasswordLength: 32
+        ExcludeCharacters: '"@/\'
+      Tags:
+        - Key: Role
+          Value: "secret"
+        - Key: Type
+          Value: rabbitmq
+
   InfinispanS3DiscoveryBucket:
     Type: AWS::S3::Bucket
     Properties:
