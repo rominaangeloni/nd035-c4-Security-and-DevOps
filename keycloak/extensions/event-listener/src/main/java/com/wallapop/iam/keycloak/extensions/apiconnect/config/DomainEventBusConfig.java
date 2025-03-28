@@ -1,7 +1,4 @@
-package com.wallapop.iam.keycloak.extensions.eventlistener.config;
-
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+package com.wallapop.iam.keycloak.extensions.apiconnect.config;
 
 import java.time.Duration;
 
@@ -16,17 +13,14 @@ public class DomainEventBusConfig {
     private int publisherThreads;
 
     public DomainEventBusConfig() {
-        Config config = ConfigFactory.load();
-        Config rabbitConfig = config.getConfig("application.domain-event-bus");
-
-        this.user = rabbitConfig.getString("user");
-        this.password = rabbitConfig.getString("password");
-        this.virtualHost = rabbitConfig.getString("virtual-host");
-        this.host = rabbitConfig.getString("host");
-        this.port = rabbitConfig.getInt("port");
-        this.queuePrefix = rabbitConfig.getString("queue-prefix");
-        this.delayedRetry = Duration.ofSeconds(rabbitConfig.getInt("delayed-retry"));
-        this.publisherThreads = rabbitConfig.getInt("publisher-threads");
+        this.user = System.getenv("RABBITMQ_USERNAME");
+        this.password = System.getenv("RABBITMQ_PASSWORD");
+        this.virtualHost = System.getenv("RABBITMQ_VIRTUAL_HOST");
+        this.host = System.getenv("RABBITMQ_HOST");
+        this.port = 5672;
+        this.queuePrefix = "iam";
+        this.delayedRetry = Duration.ofSeconds(5);
+        this.publisherThreads = 3;
     }
 
     public String getUser() {

@@ -26,6 +26,7 @@ COPY keycloak/extensions/monolith-users/conf/quarkus.properties /opt/keycloak/co
 COPY keycloak/extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar /opt/keycloak/providers/
 COPY keycloak/extensions/access-token-mapper/target/access-token-mapper.jar /opt/keycloak/providers/
 COPY keycloak/extensions/jgroups-aws-bundle/target/jgroups-aws-bundle-jar-with-dependencies.jar /opt/keycloak/providers/
+COPY keycloak/extensions/event-listener/target/event-listener-api-connect-jar-with-dependencies.jar /opt/keycloak/providers/
 
 COPY infrastructure/docker/entrypoint.sh /opt/keycloak/bin/entrypoint.sh
 ENTRYPOINT ["/opt/keycloak/bin/entrypoint.sh"]

@@ -32,6 +32,7 @@ phases:
   build:
     commands:
       # Keycloak extensions and Docker image
+      - mvn -f keycloak/extensions/event-listener/pom.xml clean install
       - mvn -f keycloak/extensions/monolith-users/pom.xml clean install
       - mvn -f keycloak/extensions/access-token-mapper/pom.xml clean install
       - mvn -f keycloak/extensions/jgroups-aws-bundle/pom.xml clean install

@@ -31,6 +31,7 @@ services:
       - seccomp:unconfined
     command:
       - "start-dev"
+      - "--verbose"
       - "--http-port=9090"
       - "--log-level=INFO,org.keycloak.events:DEBUG"
       - "--import-realm"
@@ -55,6 +56,10 @@ services:
       - AUTH_DB_USERNAME=root
       - AUTH_DB_PASSWORD=root
       - AUTH_DB_URL=jdbc:mysql://auth-users-database:3307/auth?isReadOnly=true
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=admin
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_VIRTUAL_HOST=/
       - PORTAL_HERO_SECRET=dSGJlZFLlIZN2ZCIXeW0lAWuq5bnzxHI
       - GEEK_MARKET_SECRET=KFVIMtIomC2vgIyUGb4ghhBgpHSRFcbD
       - INVENTARIO_PRO_SECRET=Q2CTUVOevUpl5t5t6NghzZftkGIgUOZE
@@ -70,6 +75,7 @@ services:
     volumes:
       - ./keycloak/config/realm.json:/opt/keycloak/data/import/realm.json
       - ./keycloak/config/themes:/opt/keycloak/themes/
+      - ./keycloak/extensions/event-listener/target/event-listener-api-connect-jar-with-dependencies.jar:/opt/keycloak/providers/event-listener-api-connect.jar
       - ./keycloak/extensions/access-token-mapper/target/access-token-mapper.jar:/opt/keycloak/providers/access-token-mapper.jar
       - ./keycloak/extensions/monolith-users/target/monolith-users-jar-with-dependencies.jar:/opt/keycloak/providers/monolith-users.jar
       - ./keycloak/extensions/monolith-users/conf/quarkus.properties:/opt/keycloak/conf/quarkus.properties
@@ -95,6 +101,17 @@ services:
     ports:
       - "4444:4444"
     shm_size: 2g
+
+  rabbitmq:
+    image: ${ECR}rabbitmq:3.8.4-management
+    container_name: rabbitmq-iam
+    hostname: localhost
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
 
 volumes:
   keycloak-db:

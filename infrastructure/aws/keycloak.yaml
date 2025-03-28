@@ -198,7 +198,7 @@ Resources:
       Description: "IAM RabbitMQ credentials"
       GenerateSecretString:
         SecretStringTemplate:
-          !Sub '{"user": "iam", "virtual-host": "wallapop", "host": "rabbitmq.wallapop.${Environment}", "port": 5672}'
+          !Sub '{"username": "iam", "virtual-host": "wallapop", "host": "rabbitmq.wallapop.${Environment}", "port": 5672}'
         GenerateStringKey: "password"
         PasswordLength: 32
         ExcludeCharacters: '"@/\'
@@ -304,6 +304,14 @@ Resources:
               ValueFrom: !Join [ ':', [ !Ref KeycloakMonolithDbSecrets, 'username::' ] ]
             - Name: MONOLITH_DB_PASSWORD
               ValueFrom: !Join [ ':', [ !Ref KeycloakMonolithDbSecrets, 'password::' ] ]
+            - Name: RABBITMQ_USERNAME
+              ValueFrom: !Join [ ':', [ !Ref KeycloakRabbitMqSecret, 'username::' ] ]
+            - Name: RABBITMQ_PASSWORD
+              ValueFrom: !Join [ ':', [ !Ref KeycloakRabbitMqSecret, 'password::' ] ]
+            - Name: RABBITMQ_HOST
+              ValueFrom: !Join [ ':', [ !Ref KeycloakRabbitMqSecret, 'host::' ] ]
+            - Name: RABBITMQ_VIRTUAL_HOST
+              ValueFrom: !Join [ ':', [ !Ref KeycloakRabbitMqSecret, 'virtual-host::' ] ]
             - Name: AUTH_DB_USERNAME
               ValueFrom: !Join [ ':', [ !Ref KeycloakAuthDatabaseUserSecrets, 'username::' ] ]
             - Name: AUTH_DB_PASSWORD
