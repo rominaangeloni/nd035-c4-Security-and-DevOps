@@ -21,20 +21,23 @@ public class AuthenticationEventListenerProvider implements EventListenerProvide
 
     @Override
     public void onEvent(Event event) {
-        System.out.println(event);
-        switch (event.getType()) {
-            case CODE_TO_TOKEN:
-                System.out.println("Event CODE_TO_TOKEN");
-                publishEvent(new AuthorizedDomainEvent(getWallapopUserId(event),event.getSessionId(), AuthorizeEventOrigin.LOGIN,event.getClientId(), event.getRealmId()));
-                break;
-            case LOGOUT:
-            case REVOKE_GRANT:
-                System.out.println("Event LOGOUT");
-                publishEvent(new UnauthorizedDomainEvent(getWallapopUserId(event),event.getSessionId(), UnauthorizeEventOrigin.fromEvent(event),event.getClientId(), event.getRealmId()));
-                break;
-            default:
-                break;
+        if(isWallapopConnectThirdPartyClient(event)) {
+            switch (event.getType()) {
+                case CODE_TO_TOKEN:
+                    publishEvent(new AuthorizedDomainEvent(getWallapopUserId(event), event.getSessionId(), AuthorizeEventOrigin.LOGIN, event.getClientId(), event.getRealmId()));
+                    break;
+                case LOGOUT:
+                case REVOKE_GRANT:
+                    publishEvent(new UnauthorizedDomainEvent(getWallapopUserId(event), event.getSessionId(), UnauthorizeEventOrigin.fromEvent(event), event.getClientId(), event.getRealmId()));
+                    break;
+                default:
+                    break;
+            }
         }
+    }
+
+    private boolean isWallapopConnectThirdPartyClient(Event event) {
+        return (!(event.getClientId().equals("security-admin-console") || event.getClientId().equals("admin-cli")) && event.getRealmName().equals("wallapop-connect"));
     }
 
     public String getWallapopUserId(Event event) {
