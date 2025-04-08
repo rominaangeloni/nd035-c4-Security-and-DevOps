@@ -1081,7 +1081,9 @@
       "id": "bbca6f74-a06f-4545-85c8-99adfe756f59",
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
+      "description": "",
       "rootUrl": "${authAdminUrl}",
+      "adminUrl": "",
       "baseUrl": "/admin/wallapop-connect/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
@@ -1104,8 +1106,14 @@
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "login_theme": "keycloak",
         "post.logout.redirect.uris": "+",
-        "pkce.code.challenge.method": "S256"
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "pkce.code.challenge.method": "S256",
+        "backchannel.logout.revoke.offline.tokens": "false"
       },
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": false,
