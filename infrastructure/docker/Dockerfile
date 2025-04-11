@@ -19,7 +19,7 @@ VOLUME /opt/keycloak/data/log
 # Keycloak config
 COPY keycloak/config/themes /opt/keycloak/themes/
 COPY keycloak/config/cache-ispn.xml /opt/keycloak/conf/
-COPY keycloak/config/realm.json /opt/keycloak/data/import/realm.json
+COPY keycloak/config/connect/realm.json /opt/keycloak/data/import/realm.json
 
 # Keycloak extensions
 COPY keycloak/extensions/monolith-users/conf/quarkus.properties /opt/keycloak/conf/

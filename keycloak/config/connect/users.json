@@ -1,0 +1,92 @@
+{
+  "ifResourceExists": "OVERWRITE",
+  "users": [
+    {
+      "id": "35f22e44-4acf-4f56-834b-295a11736094",
+      "username": "aleix.casagolda@wallapop.com",
+      "email": "aleix.casagolda@wallapop.com",
+      "emailVerified": false,
+      "createdTimestamp": 1744124822784,
+      "enabled": true,
+      "totp": false,
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "notBefore": 0,
+      "access": {
+        "manageGroupMembership": true,
+        "view": true,
+        "mapRoles": true,
+        "impersonate": true,
+        "manage": true
+      }
+    },
+    {
+      "username": "dimas.pedraza@wallapop.com",
+      "email": "dimas.pedraza@wallapop.com",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "notBefore": 0,
+      "access": {
+        "manageGroupMembership": true,
+        "view": true,
+        "mapRoles": true,
+        "impersonate": true,
+        "manage": true
+      }
+    },
+    {
+      "username": "fawzi.essam@wallapop.com",
+      "email": "fawzi.essam@wallapop.com",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "notBefore": 0,
+      "access": {
+        "manageGroupMembership": true,
+        "view": true,
+        "mapRoles": true,
+        "impersonate": true,
+        "manage": true
+      }
+    },
+    {
+      "username": "juan.cama@wallapop.com",
+      "email": "juan.cama@wallapop.com",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "notBefore": 0,
+      "access": {
+        "manageGroupMembership": true,
+        "view": true,
+        "mapRoles": true,
+        "impersonate": true,
+        "manage": true
+      }
+    },
+    {
+      "username": "romina.angeloni@wallapop.com",
+      "email": "romina.angeloni@wallapop.com",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "notBefore": 0,
+      "access": {
+        "manageGroupMembership": true,
+        "view": true,
+        "mapRoles": true,
+        "impersonate": true,
+        "manage": true
+      }
+    }
+  ]
+}

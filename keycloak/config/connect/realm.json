@@ -115,22 +115,22 @@
           "composites": {
             "client": {
               "realm-management": [
-                "query-users",
                 "view-realm",
+                "query-users",
                 "query-clients",
                 "manage-events",
                 "view-users",
                 "view-clients",
                 "query-realms",
-                "manage-identity-providers",
                 "view-authorization",
+                "manage-identity-providers",
                 "impersonation",
                 "manage-realm",
                 "manage-clients",
                 "query-groups",
                 "view-events",
-                "manage-authorization",
                 "view-identity-providers",
+                "manage-authorization",
                 "create-client",
                 "manage-users"
               ]
@@ -409,7 +409,26 @@
       "motorflash": []
     }
   },
-  "groups": [],
+  "groups": [
+    {
+      "id": "83fc1178-656b-4d2e-9d0d-3f1cf74a1069",
+      "name": "connect-api-admins",
+      "path": "/connect-api-admins",
+      "subGroups": [],
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "realm-management": [
+          "view-realm",
+          "manage-clients",
+          "view-users",
+          "view-clients",
+          "manage-users",
+          "manage-realm"
+        ]
+      }
+    }
+  ],
   "defaultRole": {
     "id": "9790be5d-db8a-4b0f-a7cc-ebfacb29214d",
     "name": "default-roles-wallapop-connect",
