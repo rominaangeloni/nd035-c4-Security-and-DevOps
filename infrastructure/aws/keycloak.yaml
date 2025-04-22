@@ -191,6 +191,17 @@ Resources:
         PasswordLength: 32
         ExcludePunctuation: true
 
+  KeycloakWebClientSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client/web"
+      Description: Secrets for the internal Keycloak's web secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{}'
+        GenerateStringKey: "secret"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
   KeycloakRabbitMqSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
