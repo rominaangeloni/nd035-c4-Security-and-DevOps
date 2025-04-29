@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo "Preparing realms"
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+"$SCRIPT_DIR/../scripts/realm/merger.sh" "$@"
+
 echo "Building extensions"
 
 ./mvnw -f access-token-mapper/pom.xml clean install

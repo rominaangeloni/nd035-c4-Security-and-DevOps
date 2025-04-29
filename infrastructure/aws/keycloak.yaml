@@ -339,6 +339,8 @@ Resources:
               ValueFrom: !Join [ ':', [ !Ref KeycloakMotorflashProClientSecret, 'secret::' ] ]
             - Name: YUPOP_SECRET
               ValueFrom: !Join [ ':', [ !Ref KeycloakYupopClientSecret, 'secret::' ] ]
+            - Name: WEB_SECRET
+              ValueFrom: !Join [ ':', [ !Ref KeycloakWebClientSecret, 'secret::' ] ]
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
           StopTimeout: 120
         - Name: telegraf

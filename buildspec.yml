@@ -31,6 +31,9 @@ phases:
       - echo "GIT_BRANCH => "$GIT_BRANCH
   build:
     commands:
+      # Generate realms file
+      - ./keycloak/scripts/realm/merger.sh
+
       # Keycloak extensions and Docker image
       - mvn -f keycloak/extensions/event-listener/pom.xml clean install
       - mvn -f keycloak/extensions/monolith-users/pom.xml clean install
