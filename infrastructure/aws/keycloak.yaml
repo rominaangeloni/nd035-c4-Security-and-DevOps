@@ -43,7 +43,7 @@ Mappings:
       prod: 4096
       beta: 2048
     Cpu:
-      prod: 1024
+      prod: 2048
       beta: 1024
     DesiredCapacity:
       prod: 3
