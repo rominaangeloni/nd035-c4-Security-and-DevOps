@@ -60,6 +60,10 @@ Mappings:
     MaximumPercent:
       prod: 134
       beta: 200
+  Container:
+    Memory:
+      prod: 3072
+      beta: 1024
     
 
 Conditions:
@@ -253,6 +257,7 @@ Resources:
       ContainerDefinitions:
         - Name: !Ref ServiceName
           Image: !Ref DockerImageUri
+          Memory: !FindInMap [ Container, Memory, !Ref Environment ]
           Essential: true
           PortMappings:
             - ContainerPort: 8080
