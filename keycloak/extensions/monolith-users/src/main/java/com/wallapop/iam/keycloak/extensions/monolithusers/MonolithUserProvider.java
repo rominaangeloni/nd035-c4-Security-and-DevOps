@@ -1,8 +1,14 @@
 package com.wallapop.iam.keycloak.extensions.monolithusers;
 
-import com.wallapop.iam.keycloak.extensions.monolithusers.password.BCryptHasher;
+import com.wallapop.iam.keycloak.extensions.monolithusers.password.ClearTextPassword;
+import com.wallapop.iam.keycloak.extensions.monolithusers.password.HashedPassword;
+import com.wallapop.iam.keycloak.extensions.monolithusers.password.PasswordValidator;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.connections.jpa.JpaConnectionProvider;
 import org.keycloak.credential.CredentialInput;
@@ -17,26 +23,17 @@ import org.keycloak.models.cache.CachedUserModel;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
-import com.wallapop.iam.keycloak.extensions.monolithusers.password.PasswordValidator;
-import com.wallapop.iam.keycloak.extensions.monolithusers.password.ClearTextPassword;
-import com.wallapop.iam.keycloak.extensions.monolithusers.password.HashedPassword;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+public class MonolithUserProvider implements UserStorageProvider, UserLookupProvider, CredentialInputValidator {
 
-public class MonolithUserProvider implements UserStorageProvider,
-        UserLookupProvider,
-        CredentialInputValidator
-{
-    private static final Logger logger = LoggerFactory.getLogger(MonolithUserProvider.class);
     public static final String PASSWORD_CACHE_KEY = MonolithUserAdapter.class.getName() + ".password";
+    private static final Logger logger = LoggerFactory.getLogger(MonolithUserProvider.class);
 
     protected EntityManager entityManagerMonolith;
-
     protected EntityManager entityManagerAuth;
-
     protected ComponentModel model;
     protected KeycloakSession session;
 
@@ -49,30 +46,40 @@ public class MonolithUserProvider implements UserStorageProvider,
 
     @Override
     public void preRemove(RealmModel realm) {
-
+        // Not aplicable
     }
 
     @Override
     public void preRemove(RealmModel realm, GroupModel group) {
-
+        // Not aplicable
     }
 
     @Override
     public void preRemove(RealmModel realm, RoleModel role) {
-
+        // Not aplicable
     }
 
     @Override
     public void close() {
+        // Not aplicable
     }
 
     @Override
     public UserModel getUserById(RealmModel realm, String id) {
-        logger.info("getUserById: " + id);
-        String       persistenceId = StorageId.externalId(id);
-        MonolithUser entity        = entityManagerMonolith.find(MonolithUser.class, persistenceId);
+        logger.info("getUserById: {}", id);
+        String persistenceId = StorageId.externalId(id);
+
+        MonolithUser entity;
+        if (realm.getName().equals("wallapop-connect")) {
+            entity = entityManagerMonolith.find(MonolithUser.class, persistenceId);
+        } else {
+            entity = Optional.ofNullable(entityManagerAuth.find(AuthUser.class, persistenceId))
+                    .map(this::mapAuthUserToMonolithUser)
+                    .orElse(null);
+        }
+
         if (entity == null) {
-            logger.info("could not find user by id: " + id);
+            logger.info("Could not find user by id: {}", id);
             return null;
         }
         return new MonolithUserAdapter(session, realm, model, entity);
@@ -86,21 +93,66 @@ public class MonolithUserProvider implements UserStorageProvider,
 
     @Override
     public UserModel getUserByEmail(RealmModel realm, String email) {
-        TypedQuery<MonolithUser> query = entityManagerMonolith.createNamedQuery("getProUserByEmail", MonolithUser.class);
+        MonolithUser user;
+
+        if (realm.getName().equals("wallapop-connect")) {
+            user = getMonolithUserForConnect(email);
+        } else {
+            user = getMonolithUserForInternal(email);
+        }
+
+        if (user == null) return null;
+
+        return new MonolithUserAdapter(session, realm, model, user);
+    }
+
+    private MonolithUser getMonolithUserForConnect(String email) {
+        TypedQuery<MonolithUser> query = entityManagerMonolith.createNamedQuery("getProUserByEmail",
+                MonolithUser.class);
         query.setParameter("email", email);
         List<MonolithUser> result = query.getResultList();
         if (result.isEmpty()) return null;
-        logger.info("User found in Monolith " + email);
+        logger.info("User found in Monolith {}", email);
+
+        Optional<AuthUser> resultAuth = getAuthUser(email);
+        AtomicReference<MonolithUser> user = new AtomicReference<>();
+        resultAuth.ifPresent(authUser -> {
+            user.set(result.get(0));
+            user.get().setAuthPassword(authUser.getPassword());
+        });
+
+        return user.get();
+    }
+
+    private MonolithUser getMonolithUserForInternal(String email) {
+        return getAuthUser(email)
+                .map(this::mapAuthUserToMonolithUser)
+                .orElse(null);
+    }
+
+    private MonolithUser mapAuthUserToMonolithUser(AuthUser authUser) {
+        MonolithUser monolithUser = new MonolithUser();
+        monolithUser.setUserId(authUser.getId());
+        monolithUser.setFirstName(authUser.getEmail());
+        monolithUser.setEmail(authUser.getEmail());
+        monolithUser.setPassword(authUser.getPassword());
+        monolithUser.setAuthPassword(authUser.getPassword());
+        monolithUser.setUserPerks(new HashSet<>());
+        return monolithUser;
+    }
+
+    private Optional<AuthUser> getAuthUser(String email) {
         TypedQuery<AuthUser> queryAuth = entityManagerAuth.createNamedQuery("getUserByEmail", AuthUser.class);
         queryAuth.setParameter("email", email);
-        List<AuthUser> resultAuth = queryAuth.getResultList();
-        if (resultAuth.isEmpty()) return null;
-        logger.info("User found in Auth " + email);
 
-        MonolithUser user = result.get(0);
-        user.setAuthPassword(resultAuth.get(0).getPassword());
+        Optional<AuthUser> result = queryAuth.getResultList().stream().findFirst();
 
-        return new MonolithUserAdapter(session, realm, model, user);
+        result.ifPresentOrElse(
+                it -> logger.info("User found in Auth {}", email),
+                () -> logger.info("User not found in Auth {}", email)
+        );
+
+        return result;
     }
 
     @Override
@@ -116,26 +168,25 @@ public class MonolithUserProvider implements UserStorageProvider,
     @Override
     public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
         logger.info("Validating user");
-        if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) return false;
-        UserCredentialModel cred = (UserCredentialModel)input;
+        if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel cred)) return false;
 
         String password = getPassword(user);
 
-        Boolean isValid = PasswordValidator.sameHash(new ClearTextPassword(cred.getValue()), new HashedPassword(password), logger);
+        boolean isValid = PasswordValidator.sameHash(new ClearTextPassword(cred.getValue()), new HashedPassword(password), logger);
         if (isValid) {
-            logger.info("User validation success with monolith database "  + user.getEmail());
+            logger.info("User validation success with monolith database {}", user.getEmail());
             return true;
         }
-        logger.info("User validation was unsuccessful for user " + user.getEmail());
+        logger.info("User validation was unsuccessful for user {}", user.getEmail());
         return false;
     }
 
     private String getPassword(UserModel user) {
         String password = null;
-        if (user instanceof CachedUserModel) {
-            password = (String)((CachedUserModel)user).getCachedWith().get(PASSWORD_CACHE_KEY);
-        } else if (user instanceof MonolithUserAdapter) {
-            password = ((MonolithUserAdapter)user).getPassword();
+        if (user instanceof CachedUserModel cachedUserModel) {
+            password = (String) cachedUserModel.getCachedWith().get(PASSWORD_CACHE_KEY);
+        } else if (user instanceof MonolithUserAdapter monolithUserAdapter) {
+            password = monolithUserAdapter.getPassword();
         }
         return password;
     }
