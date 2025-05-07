@@ -223,6 +223,13 @@ Resources:
         - Key: Type
           Value: rabbitmq
 
+  KeycloakPrometheusSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/application/prometheus"
+      Description: "Credentials for Prometheus"
+      SecretString: '{"username": "CHANGE-ME","password": "CHANGE-ME"}'
+
   InfinispanS3DiscoveryBucket:
     Type: AWS::S3::Bucket
     Properties:
