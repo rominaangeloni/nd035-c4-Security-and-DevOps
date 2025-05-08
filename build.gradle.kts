@@ -52,30 +52,3 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         ktlint("0.50.0")
     }
 }
-
-val integrationTest: SourceSet = sourceSets.create("integrationTest") {
-    java {
-        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
-        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
-        srcDir("src/integration-test/java")
-    }
-    resources.srcDir("src/integration-test/resources")
-}
-
-configurations[integrationTest.implementationConfigurationName].extendsFrom(configurations.testImplementation.get())
-configurations[integrationTest.runtimeOnlyConfigurationName].extendsFrom(configurations.testRuntimeOnly.get())
-
-val integrationTestTask = tasks.register<Test>("integrationTest") {
-    group = "verification"
-
-    useJUnitPlatform()
-
-    testClassesDirs = integrationTest.output.classesDirs
-    classpath = sourceSets["integrationTest"].runtimeClasspath
-
-    shouldRunAfter("test")
-}
-
-tasks.check {
-    dependsOn(integrationTestTask)
-}

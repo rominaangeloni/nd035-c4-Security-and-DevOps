@@ -45,7 +45,7 @@ phases:
       - docker-compose up -d
       - ./infrastructure/buildspec/await_keycloak.sh
       - docker container ls -a
-      - ./keycloak/tests/gradlew -p keycloak/tests clean build
+      - ./gradlew clean build
   post_build:
     commands:
       - docker-compose logs
@@ -81,7 +81,7 @@ reports:
   tests:
     files:
       - "**/*"
-    base-directory: keycloak/tests/build/test-results/test
+    base-directory: build/test-results/test
     file-format: JunitXml
 
 cache:
