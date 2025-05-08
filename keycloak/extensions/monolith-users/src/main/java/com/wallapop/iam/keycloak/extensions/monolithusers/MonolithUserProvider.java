@@ -5,6 +5,7 @@ import com.wallapop.iam.keycloak.extensions.monolithusers.password.HashedPasswor
 import com.wallapop.iam.keycloak.extensions.monolithusers.password.PasswordValidator;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MonolithUserProvider implements UserStorageProvider, UserLookupProvider, CredentialInputValidator {
+
+    // Temporary list of users that can use the wallapop-internal realm
+    private static final List<String> ALLOWED_INTERNAL_USERS = Arrays.asList(
+            // TnS Team
+            "albert.sabate@wallapop.com",
+            "alejandro.ibanez@wallapop.com",
+            "gerard.casamitjana@wallapop.com",
+            "izaskun.perez@wallapop.com",
+            "jazz.villanego@wallapop.com",
+            "jordi.fernandez@wallapop.com",
+            "laialopezz99@gmail.com",
+            "l3slie@hotmail.fr",
+            "nerea.cots@wallapop.com",
+            "oriolgr@protonmail.com",
+            "xavi.figueras@wallapop.com",
+
+            // Platform Backbone Team
+            "carlos.martinez@wallapop.com",
+            "david.belenguer@wallapop.com",
+            "david.castro@wallapop.com",
+            "eduard.lopez@wallapop.com",
+            "gerard.llorente@wallapop.com",
+            "javier.carbajo@wallapop.com",
+            "josep.anguera@wallapop.com",
+            "nil.font@wallapop.com",
+            "oscar.ruiz@wallapop.com",
+            "raquel.guimaraes@wallapop.com",
+            "romina.angeloni@wallapop.com"
+    );
 
     public static final String PASSWORD_CACHE_KEY = MonolithUserAdapter.class.getName() + ".password";
     private static final Logger logger = LoggerFactory.getLogger(MonolithUserProvider.class);
@@ -75,6 +105,7 @@ public class MonolithUserProvider implements UserStorageProvider, UserLookupProv
         } else {
             entity = Optional.ofNullable(entityManagerAuth.find(AuthUser.class, persistenceId))
                     .map(this::mapAuthUserToMonolithUser)
+                    .filter(user -> ALLOWED_INTERNAL_USERS.contains(user.getEmail()))
                     .orElse(null);
         }
 
@@ -127,6 +158,7 @@ public class MonolithUserProvider implements UserStorageProvider, UserLookupProv
     private MonolithUser getMonolithUserForInternal(String email) {
         return getAuthUser(email)
                 .map(this::mapAuthUserToMonolithUser)
+                .filter(user -> ALLOWED_INTERNAL_USERS.contains(user.getEmail()))
                 .orElse(null);
     }
 
