@@ -67,11 +67,16 @@ public class MonolithUserProvider implements UserStorageProvider, UserLookupProv
     protected ComponentModel model;
     protected KeycloakSession session;
 
+    private final boolean allowAllInternalUsers;
+
     MonolithUserProvider(KeycloakSession session, ComponentModel model) {
         this.session = session;
         this.model = model;
         entityManagerMonolith = this.session.getProvider(JpaConnectionProvider.class, "user-store").getEntityManager();
         entityManagerAuth = this.session.getProvider(JpaConnectionProvider.class, "user-store-auth").getEntityManager();
+
+        // Only filter out for specific users if in PROD env
+        this.allowAllInternalUsers = !this.session.getContext().getUri().getBaseUri().getHost().contains("iam.wallapop.com");
     }
 
     @Override
@@ -105,7 +110,7 @@ public class MonolithUserProvider implements UserStorageProvider, UserLookupProv
         } else {
             entity = Optional.ofNullable(entityManagerAuth.find(AuthUser.class, persistenceId))
                     .map(this::mapAuthUserToMonolithUser)
-                    .filter(user -> ALLOWED_INTERNAL_USERS.contains(user.getEmail()))
+                    .filter(user -> this.allowAllInternalUsers || ALLOWED_INTERNAL_USERS.contains(user.getEmail()))
                     .orElse(null);
         }
 
@@ -158,7 +163,7 @@ public class MonolithUserProvider implements UserStorageProvider, UserLookupProv
     private MonolithUser getMonolithUserForInternal(String email) {
         return getAuthUser(email)
                 .map(this::mapAuthUserToMonolithUser)
-                .filter(user -> ALLOWED_INTERNAL_USERS.contains(user.getEmail()))
+                .filter(user -> this.allowAllInternalUsers || ALLOWED_INTERNAL_USERS.contains(user.getEmail()))
                 .orElse(null);
     }
 
