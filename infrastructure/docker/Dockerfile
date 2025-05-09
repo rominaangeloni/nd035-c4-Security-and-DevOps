@@ -7,9 +7,6 @@ RUN dnf install --installroot /mnt/rootfs curl jq --releasever 9 --setopt instal
 FROM quay.io/keycloak/keycloak:25.0.2
 COPY --from=ubi-micro-build /mnt/rootfs /
 
-COPY infrastructure/docker/telegraf.conf /etc/telegraf/telegraf.conf
-VOLUME /etc/telegraf
-
 RUN mkdir -p /opt/keycloak/data/log
 
 COPY infrastructure/docker/fluentd.conf /fluentd/etc/fluent.conf

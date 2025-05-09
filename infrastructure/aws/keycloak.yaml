@@ -358,16 +358,6 @@ Resources:
               ValueFrom: !Join [ ':', [ !Ref KeycloakWebClientSecret, 'secret::' ] ]
           Cpu: !FindInMap [ Task, Cpu, !Ref Environment ]
           StopTimeout: 120
-        - Name: telegraf
-          Image: !Sub "${EcrUri}/telegraf:1.31.1-alpine"
-          Essential: false
-          VolumesFrom:
-            - SourceContainer: !Ref ServiceName
-          Environment:
-            - Name: ENV
-              Value: !Ref Environment
-            - Name: KEYCLOAK_HOST
-              Value: localhost
         - Name: tdagent
           Image: fluent/fluentd:v0.12
           Essential: false
