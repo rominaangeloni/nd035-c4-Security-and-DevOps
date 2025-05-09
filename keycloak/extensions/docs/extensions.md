@@ -3,7 +3,7 @@
 This folder contains the used extensions in this project. They are based on
 [Keycloak official examples](https://github.com/keycloak/keycloak-quickstarts)
 
-All you need to build this project is Java 17 (Java SDK 17) or later and Maven 3.6.3 or later.
+All you need to build this project is Java 21 (Java SDK 21) or later and Maven 3.6.3 or later.
 
 # Monolith Users JPA connection
 
