@@ -26,6 +26,10 @@ phases:
 
       # Validate AWS CloudFormation templates against the AWS CloudFormation Resource Specification
       - docker run -v "$PWD":/code -w /code ${ECR}cfn-lint:stable --ignore-checks W3005 E9000 E9001 -t infrastructure/aws/*.yaml
+
+      # Build Prometheus image
+      - chmod +x infrastructure/docker/prometheus/build_image.sh
+      - ./infrastructure/docker/prometheus/build_image.sh
     finally:
       - echo "GIT_COMMIT => "$GIT_COMMIT
       - echo "GIT_BRANCH => "$GIT_BRANCH

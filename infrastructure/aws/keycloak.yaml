@@ -36,6 +36,9 @@ Parameters:
   InfinispanS3DiscoveryBucketName:
     Type: String
     Default: keycloak-infinispan-discovery
+  PrometheusImageTag:
+    Type: String
+    Default: v3.1.0-iam
 
 Mappings:
   Task:
@@ -373,6 +376,19 @@ Resources:
           Environment:
             - Name: ENV
               Value: !Ref Environment
+        - Name: prometheus
+          Image: !Sub "${EcrUri}/prom/prometheus:${PrometheusImageTag}"
+          Essential: false
+          PortMappings:
+            - ContainerPort: 9099
+          Environment:
+            - Name: JOB_NAME_SUFFIX
+              Value: !Ref Environment
+          Secrets:
+            - Name: PROMETHEUS_USERNAME
+              ValueFrom: !Sub "${KeycloakPrometheusSecret}:username::"
+            - Name: PROMETHEUS_PASSWORD
+              ValueFrom: !Sub "${KeycloakPrometheusSecret}:password::"
 
   TaskRole:
     Type: AWS::IAM::Role
