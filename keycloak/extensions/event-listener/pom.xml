@@ -98,7 +98,7 @@
         </plugins>
     </build>
     <properties>
-        <keycloak.version>25.0.2</keycloak.version>
+        <keycloak.version>26.2.0</keycloak.version>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
