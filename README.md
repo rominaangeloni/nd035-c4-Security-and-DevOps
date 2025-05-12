@@ -145,3 +145,10 @@ Flow details:
 
 1. Merge PR into `main`. The deployment to beta environment is done automatically when merging the branch into main.
 2. Trigger deploy with Deploy bot: `deploy env=prod service=iam tag=main`
+
+# Load testing
+
+There's a Gatling based load test. It has its custom [README][gatling] with detailed instructions on
+how to run it.
+
+[gatling]: ./src/gatling/README.md

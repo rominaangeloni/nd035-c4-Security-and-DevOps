@@ -1,14 +1,16 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
-
 plugins {
     kotlin("jvm") version "2.0.0"
     id("com.diffplug.spotless") version "6.25.0"
+    id("io.gatling.gradle") version "3.13.5.4"
     jacoco
 }
 
 group = "com.wallapop.iam.keycloak"
 version = "1.0-SNAPSHOT"
+
+kotlin {
+    jvmToolchain(21)
+}
 
 repositories {
     mavenCentral()
@@ -37,18 +39,15 @@ tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinJvmCompile>().configureEach {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
-    }
-}
-
 tasks.getByName("classes").dependsOn(tasks.getByName("spotlessApply"))
 
-configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+spotless {
     isEnforceCheck = false
 
     kotlin {
         ktlint("0.50.0")
     }
+}
+
+gatling {
 }
