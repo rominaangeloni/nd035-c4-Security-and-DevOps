@@ -25,7 +25,7 @@ services:
       - ./keycloak/scripts/users-database/create-test-auth-db-users.sql:/docker-entrypoint-initdb.d/setup.sql
 
   keycloak:
-    image: ${ECR}quay.io/keycloak/keycloak:25.0.2
+    image: ${ECR}quay.io/keycloak/keycloak:26.2.0
     container_name: keycloak
     security_opt:
       - seccomp:unconfined
@@ -43,6 +43,7 @@ services:
       - KC_HEALTH_ENABLED=true
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HOSTNAME=http://keycloak:9090
       - KC_HOSTNAME_ADMIN=http://localhost:9091
       - KC_METRICS_ENABLED=true
       - KC_FEATURES=persistent-user-sessions
