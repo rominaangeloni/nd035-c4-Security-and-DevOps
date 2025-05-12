@@ -198,6 +198,17 @@ Resources:
         PasswordLength: 32
         ExcludePunctuation: true
 
+  KeycloakMotorGestionClientSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${Environment}/${Project}/${ServiceName}/client/motorgestion"
+      Description: Secrets for the Keycloak's motorgestion secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{}'
+        GenerateStringKey: "secret"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
   KeycloakWebClientSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
