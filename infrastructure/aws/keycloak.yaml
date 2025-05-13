@@ -304,11 +304,13 @@ Resources:
               Value: json
             # Keycloak features
             - Name: KC_FEATURES
-              Value: persistent-user-sessions
+              Value: persistent-user-sessions,user-event-metrics
             # Monitoring
             - Name: KC_HEALTH_ENABLED
               Value: true
             - Name: KC_METRICS_ENABLED
+              Value: true
+            - Name: KC_EVENT_METRICS_USER_ENABLED
               Value: true
             # Cache
             - Name: KC_CACHE
