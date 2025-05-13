@@ -4,5 +4,7 @@
 # new env var rather than default jgroups ec2 parameters
 export ECS_INSTANCE_PRIVATE_ADDRESS=$(curl ${ECS_CONTAINER_METADATA_URI} | jq -r .Networks[0].IPv4Addresses[0])
 
+export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-""} -Djgroups.bind_addr=$ECS_INSTANCE_PRIVATE_ADDRESS"
+
 # This will exec the CMD from your Dockerfile
 exec "$@"
