@@ -38,6 +38,7 @@
   "bruteForceProtected": false,
   "permanentLockout": false,
   "maxTemporaryLockouts": 0,
+  "bruteForceStrategy": "MULTIPLE",
   "maxFailureWaitSeconds": 900,
   "minimumQuickLoginWaitSeconds": 60,
   "waitIncrementSeconds": 60,
@@ -524,6 +525,7 @@
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
+        "realm_client": "false",
         "post.logout.redirect.uris": "+"
       },
       "authenticationFlowBindingOverrides": {},
@@ -569,6 +571,7 @@
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
+        "realm_client": "false",
         "post.logout.redirect.uris": "+",
         "pkce.code.challenge.method": "S256"
       },
@@ -621,6 +624,7 @@
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
+        "realm_client": "false",
         "post.logout.redirect.uris": "+"
       },
       "authenticationFlowBindingOverrides": {},
@@ -662,6 +666,7 @@
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
+        "realm_client": "true",
         "post.logout.redirect.uris": "+"
       },
       "authenticationFlowBindingOverrides": {},
@@ -719,6 +724,7 @@
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",
+        "realm_client": "false",
         "oidc.ciba.grant.enabled": "false",
         "client.use.lightweight.access.token.enabled": "false",
         "backchannel.logout.session.required": "true",
@@ -731,7 +737,7 @@
         "token.response.type.bearer.lower-case": "false"
       },
       "authenticationFlowBindingOverrides": {
-        "browser": "8fe0b68b-f6bf-47e4-bce4-93f94d2962ec"
+        "browser": "0948f536-1390-46d4-9222-4102d5b6935d"
       },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
@@ -794,6 +800,7 @@
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",
+        "realm_client": "false",
         "oidc.ciba.grant.enabled": "false",
         "client.use.lightweight.access.token.enabled": "false",
         "backchannel.logout.session.required": "true",
@@ -806,7 +813,7 @@
         "token.response.type.bearer.lower-case": "false"
       },
       "authenticationFlowBindingOverrides": {
-        "browser": "8fe0b68b-f6bf-47e4-bce4-93f94d2962ec"
+        "browser": "0948f536-1390-46d4-9222-4102d5b6935d"
       },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
@@ -869,6 +876,7 @@
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",
+        "realm_client": "false",
         "oidc.ciba.grant.enabled": "false",
         "client.use.lightweight.access.token.enabled": "false",
         "backchannel.logout.session.required": "true",
@@ -881,7 +889,7 @@
         "token.response.type.bearer.lower-case": "false"
       },
       "authenticationFlowBindingOverrides": {
-        "browser": "8fe0b68b-f6bf-47e4-bce4-93f94d2962ec"
+        "browser": "0948f536-1390-46d4-9222-4102d5b6935d"
       },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
@@ -944,6 +952,7 @@
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",
+        "realm_client": "false",
         "oidc.ciba.grant.enabled": "false",
         "client.use.lightweight.access.token.enabled": "false",
         "backchannel.logout.session.required": "true",
@@ -956,7 +965,7 @@
         "token.response.type.bearer.lower-case": "false"
       },
       "authenticationFlowBindingOverrides": {
-        "browser": "8fe0b68b-f6bf-47e4-bce4-93f94d2962ec"
+        "browser": "0948f536-1390-46d4-9222-4102d5b6935d"
       },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
@@ -1019,6 +1028,7 @@
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",
+        "realm_client": "false",
         "oidc.ciba.grant.enabled": "false",
         "client.use.lightweight.access.token.enabled": "false",
         "backchannel.logout.session.required": "true",
@@ -1031,7 +1041,7 @@
         "token.response.type.bearer.lower-case": "false"
       },
       "authenticationFlowBindingOverrides": {
-        "browser": "8fe0b68b-f6bf-47e4-bce4-93f94d2962ec"
+        "browser": "0948f536-1390-46d4-9222-4102d5b6935d"
       },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
@@ -1077,6 +1087,7 @@
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
+        "realm_client": "true",
         "post.logout.redirect.uris": "+"
       },
       "authenticationFlowBindingOverrides": {},
@@ -1125,6 +1136,7 @@
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
+        "realm_client": "false",
         "oidc.ciba.grant.enabled": "false",
         "backchannel.logout.session.required": "true",
         "login_theme": "keycloak",
@@ -1209,6 +1221,7 @@
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",
+        "realm_client": "false",
         "oidc.ciba.grant.enabled": "false",
         "client.use.lightweight.access.token.enabled": "false",
         "backchannel.logout.session.required": "true",
@@ -1221,7 +1234,7 @@
         "token.response.type.bearer.lower-case": "false"
       },
       "authenticationFlowBindingOverrides": {
-        "browser": "8fe0b68b-f6bf-47e4-bce4-93f94d2962ec"
+        "browser": "0948f536-1390-46d4-9222-4102d5b6935d"
       },
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": -1,
@@ -1757,6 +1770,7 @@
             "user.session.note": "AUTH_TIME",
             "id.token.claim": "true",
             "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "auth_time",
             "jsonType.label": "long"
@@ -2666,7 +2680,7 @@
       ]
     },
     {
-      "id": "8fe0b68b-f6bf-47e4-bce4-93f94d2962ec",
+      "id": "0948f536-1390-46d4-9222-4102d5b6935d",
       "alias": "session counter limiter",
       "description": "browser based authentication with user session counter limiter",
       "providerId": "basic-flow",
@@ -2677,14 +2691,14 @@
           "authenticator": "auth-cookie",
           "authenticatorFlow": false,
           "requirement": "ALTERNATIVE",
-          "priority": 30,
+          "priority": 0,
           "autheticatorFlow": false,
           "userSetupAllowed": false
         },
         {
           "authenticatorFlow": true,
           "requirement": "ALTERNATIVE",
-          "priority": 31,
+          "priority": 1,
           "autheticatorFlow": true,
           "flowAlias": "session counter limiter forms",
           "userSetupAllowed": false
@@ -2703,7 +2717,7 @@
           "authenticator": "auth-username-password-form",
           "authenticatorFlow": false,
           "requirement": "REQUIRED",
-          "priority": 10,
+          "priority": 0,
           "autheticatorFlow": false,
           "userSetupAllowed": false
         },
@@ -2712,7 +2726,7 @@
           "authenticator": "user-session-limits",
           "authenticatorFlow": false,
           "requirement": "REQUIRED",
-          "priority": 21,
+          "priority": 1,
           "autheticatorFlow": false,
           "userSetupAllowed": false
         }
@@ -2860,7 +2874,6 @@
     "oauth2DeviceCodeLifespan": "600",
     "parRequestUriLifespan": "60",
     "clientSessionMaxLifespan": "0",
-    "organizationsEnabled": "false",
     "adminEventsExpiration": "1296000",
     "shortVerificationUri": "",
     "actionTokenGeneratedByUserLifespan.reset-credentials": ""
@@ -2868,6 +2881,8 @@
   "keycloakVersion": "26.2.0",
   "userManagedAccessAllowed": false,
   "organizationsEnabled": false,
+  "verifiableCredentialsEnabled": false,
+  "adminPermissionsEnabled": false,
   "clientProfiles": {
     "profiles": []
   },
