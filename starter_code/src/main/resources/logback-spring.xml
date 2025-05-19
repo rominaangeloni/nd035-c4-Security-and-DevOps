@@ -1,0 +1,19 @@
+<configuration debug="true">
+    <appender name="SPLUNK" class="com.splunk.logging.HttpEventCollectorLogbackAppender">
+        <url>https://3.84.28.194:8088/</url>
+        <token>0c2e0bdb-5095-4168-8552-96b1e50037d7</token>
+        <source>java-app</source>
+        <sourcetype>_json</sourcetype>
+        <index>main</index>
+        <disableCertificateValidation>true</disableCertificateValidation>
+        <batch_size_count>1</batch_size_count>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%msg</pattern>
+        </layout>
+        <debug>true</debug>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="SPLUNK"/>
+    </root>
+</configuration>

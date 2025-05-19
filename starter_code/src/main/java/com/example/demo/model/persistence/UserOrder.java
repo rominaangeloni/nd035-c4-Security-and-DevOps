@@ -74,6 +74,7 @@ public class UserOrder {
 		this.total = total;
 	}
 
+
 	public static UserOrder createFromCart(Cart cart) {
 		UserOrder order = new UserOrder();
 		order.setItems(cart.getItems().stream().collect(Collectors.toList()));
@@ -81,5 +82,4 @@ public class UserOrder {
 		order.setUser(cart.getUser());
 		return order;
 	}
-	
 }
